@@ -19,6 +19,7 @@ interface ExtractRequestBody {
   jurisdiction: string;
   sector: string;
   documents: Array<{ fileName: string; fileType: "pdf" | "xlsx" | "docx"; sizeBytes: number }>;
+  dealValue?: number;
 }
 
 function isValidSector(value: string): value is Sector {
@@ -55,6 +56,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<{ deal: D
     jurisdiction: body.jurisdiction,
     sector: body.sector,
     documents: body.documents ?? [],
+    dealValue: typeof body.dealValue === "number" && body.dealValue > 0 ? body.dealValue : undefined,
   };
 
   await sleep(650);

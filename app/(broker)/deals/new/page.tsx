@@ -6,6 +6,7 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { FormattedNumberInput } from "@/components/ui/formatted-number-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
@@ -31,6 +32,7 @@ export default function NewDealPage() {
   const [companyName, setCompanyName] = useState("");
   const [jurisdiction, setJurisdiction] = useState("Delaware, USA");
   const [sector, setSector] = useState<Sector>("SaaS / Technology");
+  const [dealValue, setDealValue] = useState(0);
   const [files, setFiles] = useState<StagedFile[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +49,7 @@ export default function NewDealPage() {
       const response = await fetch("/api/v1/deals/extract", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ organizationName, companyName, jurisdiction, sector, documents: files }),
+        body: JSON.stringify({ organizationName, companyName, jurisdiction, sector, documents: files, dealValue }),
       });
 
       if (!response.ok) {
@@ -126,6 +128,13 @@ export default function NewDealPage() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="dealValue">Deal Value (USD)</Label>
+                <FormattedNumberInput id="dealValue" value={dealValue} onChange={setDealValue} />
+                <p className="text-xs text-muted-foreground">
+                  Optional — leave blank and the extraction engine will estimate it from the uploaded documents.
+                </p>
+              </div>
             </div>
           )}
 
@@ -144,6 +153,10 @@ export default function NewDealPage() {
                   <dd className="text-right font-medium text-primary">{jurisdiction}</dd>
                   <dt className="text-muted-foreground">Sector</dt>
                   <dd className="text-right font-medium text-primary">{sector}</dd>
+                  <dt className="text-muted-foreground">Deal Value</dt>
+                  <dd className="text-right font-medium text-primary">
+                    {dealValue > 0 ? `$${dealValue.toLocaleString("en-US")}` : "To be estimated"}
+                  </dd>
                   <dt className="text-muted-foreground">Documents Attached</dt>
                   <dd className="text-right font-medium text-primary">{files.length}</dd>
                 </dl>

@@ -68,6 +68,7 @@ export interface ExtractionRequestPayload {
   jurisdiction: string;
   sector: Sector;
   documents: Array<{ fileName: string; fileType: "pdf" | "xlsx" | "docx"; sizeBytes: number }>;
+  dealValue?: number;
 }
 
 export interface MockExtractionResult {
@@ -107,7 +108,13 @@ export function runMockExtraction(payload: ExtractionRequestPayload): MockExtrac
   // jurisdiction, so brokers and carriers always compare like for like.
   const currency = "USD";
 
-  const enterpriseValue = Math.round((25_000_000 + rng() * 575_000_000) / 500_000) * 500_000;
+  // Brokers typically know the transaction value upfront, so it's taken as
+  // given input rather than guessed by the mock extraction model. Only when
+  // it's omitted do we fall back to a deterministic mock estimate.
+  const enterpriseValue =
+    payload.dealValue && payload.dealValue > 0
+      ? payload.dealValue
+      : Math.round((25_000_000 + rng() * 575_000_000) / 500_000) * 500_000;
   const targetDebt = Math.round(enterpriseValue * (0.05 + rng() * 0.25));
   const targetCash = Math.round(enterpriseValue * (0.02 + rng() * 0.12));
 
@@ -146,7 +153,7 @@ export function runMockExtraction(payload: ExtractionRequestPayload): MockExtrac
       companyName: 0.99,
       jurisdiction: 0.95,
       sector: 0.9,
-      enterpriseValue: hasMinimalDocuments ? 0.62 : 0.94,
+      enterpriseValue: payload.dealValue && payload.dealValue > 0 ? 0.99 : hasMinimalDocuments ? 0.62 : 0.94,
       targetDebt: hasMinimalDocuments ? 0.55 : 0.9,
       targetCash: hasMinimalDocuments ? 0.55 : 0.9,
       governingLaw: 0.97,
