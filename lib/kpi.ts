@@ -42,13 +42,29 @@ export function computeBrokerPortfolioKpis(deals: Deal[]): BrokerPortfolioKpis {
   return { totalDealValue, activeDeals: activeDealsList.length, totalBids, averageDaysToClose };
 }
 
-export function averageRiskScoreOutOfTen(deal: Deal): number {
+export function averageRiskScore(deal: Deal): number {
   const average = deal.warranties.reduce((total, w) => total + w.severityScore, 0) / deal.warranties.length;
-  return Math.round((average / 10) * 10) / 10;
+  return Math.round(average);
 }
 
-export function daysActive(deal: Deal): number {
-  return Math.max(0, Math.floor((Date.now() - new Date(deal.createdAt).getTime()) / (1000 * 60 * 60 * 24)));
+/**
+ * Display-only mock values for dashboard "vanity" stats that would, in a
+ * real data room, run into the hundreds of documents and weeks of pipeline
+ * age -- our seed decks intentionally hold only a handful of documents and
+ * are all created in the same instant, which reads as broken ("0d" on
+ * every card) rather than as a small demo dataset. These are deterministic
+ * per card position, not random per render, so a given card always shows
+ * the same numbers.
+ */
+const MOCK_DAYS_ACTIVE_CYCLE = [3, 7, 12, 18, 25];
+const MOCK_DOCUMENT_COUNT_CYCLE = [24, 38, 52, 29, 61, 33, 47];
+
+export function mockDaysActive(index: number): number {
+  return MOCK_DAYS_ACTIVE_CYCLE[index % MOCK_DAYS_ACTIVE_CYCLE.length]!;
+}
+
+export function mockDocumentCount(index: number): number {
+  return MOCK_DOCUMENT_COUNT_CYCLE[index % MOCK_DOCUMENT_COUNT_CYCLE.length]!;
 }
 
 export interface RecentActivityItem {

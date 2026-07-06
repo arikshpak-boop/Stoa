@@ -94,8 +94,8 @@ export function OpportunityList({ deals }: { deals: Deal[] }) {
       </div>
 
       <div className="mt-4 space-y-4">
-        {filteredDeals.map((deal) => (
-          <OpportunityCard key={deal.id} deal={deal} />
+        {filteredDeals.map((deal, index) => (
+          <OpportunityCard key={deal.id} deal={deal} index={index} />
         ))}
         {filteredDeals.length === 0 && (
           <div className="rounded-lg border border-border bg-white py-10 text-center text-sm text-muted-foreground">

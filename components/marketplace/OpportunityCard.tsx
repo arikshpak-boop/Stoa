@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/premium";
-import { averageRiskScoreOutOfTen, summarizeOpportunity } from "@/lib/kpi";
+import { averageRiskScore, mockDocumentCount, summarizeOpportunity } from "@/lib/kpi";
 import type { Deal } from "@/lib/types";
 
 function StatBlock({ label, value }: { label: string; value: string }) {
@@ -16,9 +16,9 @@ function StatBlock({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function OpportunityCard({ deal }: { deal: Deal }) {
+export function OpportunityCard({ deal, index }: { deal: Deal; index: number }) {
   const summary = summarizeOpportunity(deal);
-  const riskScore = averageRiskScoreOutOfTen(deal);
+  const riskScore = averageRiskScore(deal);
 
   return (
     <Card>
@@ -44,8 +44,8 @@ export function OpportunityCard({ deal }: { deal: Deal }) {
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
-          <StatBlock label="Risk Score" value={`${riskScore.toFixed(1)} /10`} />
-          <StatBlock label="Documents" value={String(deal.documents.length)} />
+          <StatBlock label="Risk Score" value={`${riskScore} /100`} />
+          <StatBlock label="Documents" value={String(mockDocumentCount(index))} />
           <StatBlock label="Warranties" value={String(deal.warranties.length)} />
           <StatBlock label="Competing Bids" value={String(deal.bids.length)} />
           <StatBlock

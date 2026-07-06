@@ -4,19 +4,19 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { averageRiskScoreOutOfTen, daysActive } from "@/lib/kpi";
+import { averageRiskScore, mockDaysActive, mockDocumentCount } from "@/lib/kpi";
 import { DEAL_STATUS_DISPLAY } from "@/lib/deal-status-display";
 import type { Deal } from "@/lib/types";
 
 function riskScoreColor(score: number): string {
-  if (score >= 7) return "bg-destructive";
-  if (score >= 4) return "bg-warning";
+  if (score >= 70) return "bg-destructive";
+  if (score >= 40) return "bg-warning";
   return "bg-success";
 }
 
-export function DealPortfolioCard({ deal }: { deal: Deal }) {
+export function DealPortfolioCard({ deal, index }: { deal: Deal; index: number }) {
   const statusDisplay = DEAL_STATUS_DISPLAY[deal.status];
-  const riskScore = averageRiskScoreOutOfTen(deal);
+  const riskScore = averageRiskScore(deal);
   const activeBidCount = deal.bids.filter((bid) => bid.bidStatus === "Pending").length;
   const dealValueMillions = Math.round(deal.financials.enterpriseValue / 1_000_000);
 
@@ -41,13 +41,13 @@ export function DealPortfolioCard({ deal }: { deal: Deal }) {
           <div>
             <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Risk Score</p>
             <div className="mt-1 flex items-center gap-2">
-              <Progress value={riskScore * 10} className="h-1.5 w-16" indicatorClassName={riskScoreColor(riskScore)} />
-              <span className="text-sm font-semibold tabular-nums text-primary">{riskScore.toFixed(1)}</span>
+              <Progress value={riskScore} className="h-1.5 w-16" indicatorClassName={riskScoreColor(riskScore)} />
+              <span className="text-sm font-semibold tabular-nums text-primary">{riskScore}</span>
             </div>
           </div>
           <div>
             <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Documents</p>
-            <p className="mt-1 text-sm font-semibold tabular-nums text-primary">{deal.documents.length}</p>
+            <p className="mt-1 text-sm font-semibold tabular-nums text-primary">{mockDocumentCount(index)}</p>
           </div>
           <div>
             <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Active Bids</p>
@@ -55,7 +55,7 @@ export function DealPortfolioCard({ deal }: { deal: Deal }) {
           </div>
           <div>
             <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Days Active</p>
-            <p className="mt-1 text-sm font-semibold tabular-nums text-primary">{daysActive(deal)}d</p>
+            <p className="mt-1 text-sm font-semibold tabular-nums text-primary">{mockDaysActive(index)}d</p>
           </div>
         </div>
 

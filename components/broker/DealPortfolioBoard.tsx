@@ -97,8 +97,8 @@ export function DealPortfolioBoard({ deals, kpis, recentActivity }: DealPortfoli
           </div>
 
           <div className="mt-3 space-y-3">
-            {visibleDeals.map((deal) => (
-              <DealPortfolioCard key={deal.id} deal={deal} />
+            {visibleDeals.map((deal, index) => (
+              <DealPortfolioCard key={deal.id} deal={deal} index={index} />
             ))}
             {visibleDeals.length === 0 && (
               <div className="rounded-lg border border-border bg-white py-10 text-center text-sm text-muted-foreground">
