@@ -4,13 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/premium";
-import { summarizeOpportunity } from "@/lib/kpi";
+import { averageRiskScoreOutOfTen, summarizeOpportunity } from "@/lib/kpi";
 import type { Deal } from "@/lib/types";
-
-function averageRiskScoreOutOfTen(deal: Deal): number {
-  const average = deal.warranties.reduce((total, w) => total + w.severityScore, 0) / deal.warranties.length;
-  return Math.round((average / 10) * 10) / 10;
-}
 
 function StatBlock({ label, value }: { label: string; value: string }) {
   return (

@@ -17,6 +17,91 @@ export function computeBrokerKpis(deals: Deal[]): BrokerKpis {
   return { activeDeals, totalBidsReceived, dealsClosed, averageDataRoomQuality };
 }
 
+export interface BrokerPortfolioKpis {
+  totalDealValue: number;
+  activeDeals: number;
+  totalBids: number;
+  averageDaysToClose: number | null;
+}
+
+export function computeBrokerPortfolioKpis(deals: Deal[]): BrokerPortfolioKpis {
+  const activeDealsList = deals.filter((deal) => deal.status !== "Closed");
+  const totalDealValue = activeDealsList.reduce((total, deal) => total + deal.financials.enterpriseValue, 0);
+  const totalBids = deals.reduce((total, deal) => total + deal.bids.length, 0);
+
+  const closingDurationsInDays = deals.map((deal) => {
+    const signing = new Date(deal.timeline.signingDate).getTime();
+    const closing = new Date(deal.timeline.scheduledClosingDate).getTime();
+    return (closing - signing) / (1000 * 60 * 60 * 24);
+  });
+  const averageDaysToClose =
+    closingDurationsInDays.length === 0
+      ? null
+      : Math.round(closingDurationsInDays.reduce((total, days) => total + days, 0) / closingDurationsInDays.length);
+
+  return { totalDealValue, activeDeals: activeDealsList.length, totalBids, averageDaysToClose };
+}
+
+export function averageRiskScoreOutOfTen(deal: Deal): number {
+  const average = deal.warranties.reduce((total, w) => total + w.severityScore, 0) / deal.warranties.length;
+  return Math.round((average / 10) * 10) / 10;
+}
+
+export function daysActive(deal: Deal): number {
+  return Math.max(0, Math.floor((Date.now() - new Date(deal.createdAt).getTime()) / (1000 * 60 * 60 * 24)));
+}
+
+export interface RecentActivityItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  timestamp: string;
+}
+
+/**
+ * Derived only from events we can genuinely timestamp -- bid submissions
+ * and deal creation. The reference design shows a richer variety (document
+ * uploads, risk-assessment completion, deadline changes) but we don't track
+ * distinct timestamps for those in the mock model, so fabricating them
+ * would be dishonest. Real data, smaller variety, beats fake data.
+ */
+export function computeRecentActivity(deals: Deal[], limit = 5): RecentActivityItem[] {
+  const items: RecentActivityItem[] = [];
+
+  for (const deal of deals) {
+    items.push({
+      id: `deal-${deal.id}`,
+      title: "Deal submitted",
+      subtitle: `${deal.target.companyName} · ${deal.organizationName}`,
+      timestamp: deal.createdAt,
+    });
+    for (const bid of deal.bids) {
+      items.push({
+        id: `bid-${bid.id}`,
+        title: "New bid received",
+        subtitle: `${deal.target.companyName} · ${bid.carrierName}`,
+        timestamp: bid.submittedAt,
+      });
+    }
+  }
+
+  return items.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).slice(0, limit);
+}
+
+export function formatRelativeTime(isoDate: string): string {
+  const diffMs = Date.now() - new Date(isoDate).getTime();
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+  if (diffMinutes < 1) return "just now";
+  if (diffMinutes < 60) return `${diffMinutes}m ago`;
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) return `${diffDays}d ago`;
+  const diffWeeks = Math.floor(diffDays / 7);
+  return `${diffWeeks}w ago`;
+}
+
 export interface CarrierKpis {
   opportunitiesInMarket: number;
   myActiveBids: number;
