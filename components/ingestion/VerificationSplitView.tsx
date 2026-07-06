@@ -6,9 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { Deal } from "@/lib/types";
 
+// Virtual page dimensions used only as a coordinate space — every position
+// is rendered as a percentage of these, so the canvas itself can be any
+// actual pixel size (it just holds this aspect ratio) without the two ever
+// getting out of sync or overflowing a narrower column.
 const PAGE_WIDTH = 520;
 const PAGE_HEIGHT = 680;
-const SOURCE_CANVAS_WIDTH = 620;
+const CONTENT_LEFT_PERCENT = (32 / PAGE_WIDTH) * 100;
+const CONTENT_TOP = 56;
+const CONTENT_BOTTOM_MARGIN = 16;
 
 type ExtractedFieldKey = keyof Deal["extractedFields"];
 
@@ -41,12 +47,12 @@ function formatFieldValue(key: ExtractedFieldKey, value: string | number, curren
 }
 
 interface MockPageLine {
-  top: number;
-  width: string;
+  topPercent: number;
+  widthPercent: number;
   isHeading: boolean;
 }
 
-function generateMockPageLines(seedKey: string, contentTop: number, contentHeight: number): MockPageLine[] {
+function generateMockPageLines(seedKey: string): MockPageLine[] {
   let seed = 0;
   for (let i = 0; i < seedKey.length; i++) {
     seed = (seed * 31 + seedKey.charCodeAt(i)) >>> 0;
@@ -57,18 +63,23 @@ function generateMockPageLines(seedKey: string, contentTop: number, contentHeigh
   };
 
   const lines: MockPageLine[] = [];
-  let cursor = contentTop;
+  let cursor = CONTENT_TOP;
   let sinceHeading = 0;
+  const bottom = PAGE_HEIGHT - CONTENT_BOTTOM_MARGIN;
 
-  while (cursor < contentTop + contentHeight - 12) {
+  while (cursor < bottom - 12) {
     const startsHeading = sinceHeading > 4 + Math.floor(next() * 3);
     if (startsHeading) {
-      lines.push({ top: cursor, width: `${28 + Math.round(next() * 20)}%`, isHeading: true });
+      lines.push({ topPercent: (cursor / PAGE_HEIGHT) * 100, widthPercent: 28 + Math.round(next() * 20), isHeading: true });
       cursor += 22;
       sinceHeading = 0;
     } else {
       const isLastInParagraph = next() > 0.75;
-      lines.push({ top: cursor, width: isLastInParagraph ? `${40 + Math.round(next() * 30)}%` : `${78 + Math.round(next() * 18)}%`, isHeading: false });
+      lines.push({
+        topPercent: (cursor / PAGE_HEIGHT) * 100,
+        widthPercent: isLastInParagraph ? 40 + Math.round(next() * 30) : 78 + Math.round(next() * 18),
+        isHeading: false,
+      });
       cursor += 16;
       sinceHeading += 1;
     }
@@ -82,14 +93,14 @@ export function VerificationSplitView({ deal }: { deal: Deal }) {
   const [selectedKey, setSelectedKey] = useState<ExtractedFieldKey>(fieldKeys[0] ?? "companyName");
 
   const selectedField = deal.extractedFields[selectedKey];
+  const mockLines = generateMockPageLines(`${selectedField.sourceDocument}-${selectedField.sourcePage}`);
 
-  const scaleX = SOURCE_CANVAS_WIDTH / PAGE_WIDTH;
-  const canvasHeight = SOURCE_CANVAS_WIDTH * (PAGE_HEIGHT / PAGE_WIDTH);
-  const mockLines = generateMockPageLines(
-    `${selectedField.sourceDocument}-${selectedField.sourcePage}`,
-    56,
-    canvasHeight - 56 - 16,
-  );
+  const boundingBox = {
+    left: `${(selectedField.sourceCoordinates.x / PAGE_WIDTH) * 100}%`,
+    top: `${(selectedField.sourceCoordinates.y / PAGE_HEIGHT) * 100}%`,
+    width: `${(selectedField.sourceCoordinates.width / PAGE_WIDTH) * 100}%`,
+    height: `${(selectedField.sourceCoordinates.height / PAGE_HEIGHT) * 100}%`,
+  };
 
   return (
     <div className="grid grid-cols-1 gap-0 overflow-hidden rounded-lg border border-border bg-white lg:grid-cols-2">
@@ -112,11 +123,11 @@ export function VerificationSplitView({ deal }: { deal: Deal }) {
                     isSelected ? "border-l-2 border-accent bg-accent/5" : "border-l-2 border-transparent hover:bg-muted/60",
                   )}
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       {FIELD_LABELS[key]}
                     </span>
-                    <Badge variant={confidenceVariant(extractedField.confidence)}>
+                    <Badge variant={confidenceVariant(extractedField.confidence)} className="shrink-0">
                       {Math.round(extractedField.confidence * 100)}% confidence
                     </Badge>
                   </div>
@@ -124,8 +135,10 @@ export function VerificationSplitView({ deal }: { deal: Deal }) {
                     {formatFieldValue(key, extractedField.value, deal.financials.currency)}
                   </span>
                   <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <FileText className="h-3 w-3" />
-                    {extractedField.sourceDocument} · p.{extractedField.sourcePage}
+                    <FileText className="h-3 w-3 shrink-0" />
+                    <span className="truncate">
+                      {extractedField.sourceDocument} · p.{extractedField.sourcePage}
+                    </span>
                   </span>
                 </button>
               </li>
@@ -134,35 +147,27 @@ export function VerificationSplitView({ deal }: { deal: Deal }) {
         </ul>
       </div>
 
-      <div className="flex flex-col">
+      <div className="flex min-w-0 flex-col">
         <div className="border-b border-border bg-muted/60 px-5 py-3">
           <p className="label-uppercase">Source Document Viewer</p>
         </div>
-        <div className="flex flex-1 items-start justify-center bg-secondary/5 p-6">
+        <div className="flex flex-1 items-start justify-center overflow-hidden bg-secondary/5 p-6">
           <div
-            className="relative shrink-0 rounded-sm border border-border bg-white shadow-sm"
-            style={{ width: SOURCE_CANVAS_WIDTH, height: canvasHeight }}
+            className="relative w-full max-w-[420px] rounded-sm border border-border bg-white shadow-sm"
+            style={{ aspectRatio: `${PAGE_WIDTH} / ${PAGE_HEIGHT}` }}
           >
-            <div className="absolute inset-x-0 top-0 flex items-center justify-between border-b border-border px-4 py-2 text-xs text-muted-foreground">
-              <span>{selectedField.sourceDocument}</span>
-              <span>Page {selectedField.sourcePage}</span>
+            <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-2 border-b border-border px-4 py-2 text-xs text-muted-foreground">
+              <span className="truncate">{selectedField.sourceDocument}</span>
+              <span className="shrink-0">Page {selectedField.sourcePage}</span>
             </div>
             {mockLines.map((line, lineIndex) => (
               <div
                 key={lineIndex}
-                className={cn("absolute left-8 rounded-sm", line.isHeading ? "h-3 bg-muted-foreground/25" : "h-2 bg-muted")}
-                style={{ top: line.top, width: line.width }}
+                className={cn("absolute rounded-sm", line.isHeading ? "h-[3%] bg-muted-foreground/25" : "h-[2%] bg-muted")}
+                style={{ top: `${line.topPercent}%`, left: `${CONTENT_LEFT_PERCENT}%`, width: `${line.widthPercent}%` }}
               />
             ))}
-            <div
-              className="absolute rounded-sm border-2 border-accent bg-accent/10"
-              style={{
-                left: selectedField.sourceCoordinates.x * scaleX,
-                top: selectedField.sourceCoordinates.y * (scaleX * 0.9),
-                width: selectedField.sourceCoordinates.width * scaleX,
-                height: selectedField.sourceCoordinates.height * scaleX,
-              }}
-            />
+            <div className="absolute rounded-sm border-2 border-accent bg-accent/10" style={boundingBox} />
           </div>
         </div>
         <div className="border-t border-border px-5 py-3 text-xs text-muted-foreground">
