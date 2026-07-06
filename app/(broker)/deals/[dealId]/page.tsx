@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { VerificationSplitView } from "@/components/ingestion/VerificationSplitView";
+import { BidsTable } from "@/components/marketplace/BidsTable";
 
 export default function DealDetailPage({ params }: { params: { dealId: string } }) {
   const deal = getDealStore().get(params.dealId);
@@ -70,6 +71,19 @@ export default function DealDetailPage({ params }: { params: { dealId: string } 
             <p className="mt-1">Venue: <span className="font-medium text-primary">{deal.legal.disputeResolutionVenue}</span></p>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="mt-8">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold tracking-tight text-primary">Bids Received</h2>
+          <span className="text-sm text-muted-foreground">{deal.bids.length} carrier{deal.bids.length === 1 ? "" : "s"} bidding</span>
+        </div>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Competitive bids from carriers reviewing this submission — visible here as soon as they're placed.
+        </p>
+        <div className="mt-4">
+          <BidsTable bids={deal.bids} currency={deal.financials.currency} />
+        </div>
       </div>
 
       <div className="mt-8">

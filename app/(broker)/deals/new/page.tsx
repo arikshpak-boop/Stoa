@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { FileDropZone, type StagedFile } from "@/components/ingestion/FileDropZone";
+import { formatCurrency } from "@/lib/premium";
+import { truncateHash } from "@/lib/utils";
 import type { Deal, Sector } from "@/lib/types";
 
 const SECTORS: Sector[] = [
@@ -36,6 +39,7 @@ export default function NewDealPage() {
   const [files, setFiles] = useState<StagedFile[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [submittedDeal, setSubmittedDeal] = useState<Deal | null>(null);
 
   const canProceedFromStepOne = useMemo(
     () => organizationName.trim().length > 0 && companyName.trim().length > 0 && jurisdiction.trim().length > 0,
@@ -58,11 +62,63 @@ export default function NewDealPage() {
       }
 
       const payload = (await response.json()) as { deal: Deal };
-      router.push(`/deals/${payload.deal.id}`);
+      setSubmittedDeal(payload.deal);
+      setIsSubmitting(false);
     } catch (submissionError) {
       setError(submissionError instanceof Error ? submissionError.message : "Unexpected error during extraction.");
       setIsSubmitting(false);
     }
+  }
+
+  function handleStartAnother() {
+    setSubmittedDeal(null);
+    setStepIndex(0);
+    setCompanyName("");
+    setDealValue(0);
+    setFiles([]);
+    setError(null);
+  }
+
+  if (submittedDeal) {
+    return (
+      <div className="mx-auto max-w-2xl px-8 py-16 text-center">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-success/10">
+          <CheckCircle2 className="h-7 w-7 text-success" aria-hidden="true" />
+        </div>
+        <h1 className="mt-5 text-2xl font-semibold tracking-tight text-primary">Submission Successful</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {submittedDeal.target.companyName} has been extracted, risk-scored, and locked as an immutable snapshot.
+          It's now visible to carriers on the marketplace.
+        </p>
+
+        <div className="mt-6 rounded-md border border-border bg-muted/60 p-4 text-left text-sm">
+          <dl className="grid grid-cols-2 gap-y-2">
+            <dt className="text-muted-foreground">Target</dt>
+            <dd className="text-right font-medium text-primary">{submittedDeal.target.companyName}</dd>
+            <dt className="text-muted-foreground">Enterprise Value</dt>
+            <dd className="text-right font-medium text-primary">
+              {formatCurrency(submittedDeal.financials.enterpriseValue, submittedDeal.financials.currency)}
+            </dd>
+            <dt className="text-muted-foreground">Status</dt>
+            <dd className="text-right font-medium text-primary">{submittedDeal.status}</dd>
+            <dt className="text-muted-foreground">Snapshot Hash</dt>
+            <dd className="text-right font-mono text-xs text-primary">{truncateHash(submittedDeal.snapshotHash, 8)}</dd>
+          </dl>
+        </div>
+
+        <div className="mt-8 flex items-center justify-center gap-3">
+          <Button variant="outline" onClick={handleStartAnother}>
+            Submit Another Deal
+          </Button>
+          <Button asChild>
+            <Link href={`/deals/${submittedDeal.id}`}>
+              View Deal
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (

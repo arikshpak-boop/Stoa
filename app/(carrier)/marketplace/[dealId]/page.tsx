@@ -8,16 +8,10 @@ import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { UnderwritingGrid } from "@/components/risk/UnderwritingGrid";
 import { DataRoomQualityPanel } from "@/components/risk/DataRoomQualityPanel";
 import { BidForm } from "@/components/marketplace/BidForm";
-
-const BID_STATUS_VARIANT: Record<string, "muted" | "success" | "destructive"> = {
-  Pending: "muted",
-  Accepted: "success",
-  Declined: "destructive",
-};
+import { BidsTable } from "@/components/marketplace/BidsTable";
 
 export default function CarrierDealWorkspacePage({ params }: { params: { dealId: string } }) {
   const deal = getDealStore().get(params.dealId);
@@ -92,38 +86,8 @@ export default function CarrierDealWorkspacePage({ params }: { params: { dealId:
 
           <div>
             <h3 className="text-base font-semibold tracking-tight text-primary">Bids on This Deal</h3>
-            <div className="mt-3 rounded-lg border border-border bg-white">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Carrier</TableHead>
-                    <TableHead>Limit</TableHead>
-                    <TableHead>Retention</TableHead>
-                    <TableHead>RoL</TableHead>
-                    <TableHead>Premium</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {deal.bids.map((bid) => (
-                    <TableRow key={bid.id}>
-                      <TableCell className="font-medium text-primary">{bid.carrierName}</TableCell>
-                      <TableCell>{formatCurrency(bid.limitAmount, deal.financials.currency)} <span className="text-xs text-muted-foreground">({bid.limitPercentOfEv}% EV)</span></TableCell>
-                      <TableCell>{formatCurrency(bid.retentionAmount, deal.financials.currency)} <span className="text-xs text-muted-foreground">({bid.retentionTrigger})</span></TableCell>
-                      <TableCell>{bid.rateOnLinePercent}%</TableCell>
-                      <TableCell className="font-medium text-primary">{formatCurrency(bid.premiumTotal, deal.financials.currency)}</TableCell>
-                      <TableCell><Badge variant={BID_STATUS_VARIANT[bid.bidStatus]}>{bid.bidStatus}</Badge></TableCell>
-                    </TableRow>
-                  ))}
-                  {deal.bids.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={6} className="py-6 text-center text-sm text-muted-foreground">
-                        No bids submitted yet — be the first carrier to price this risk.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+            <div className="mt-3">
+              <BidsTable bids={deal.bids} currency={deal.financials.currency} />
             </div>
           </div>
         </div>

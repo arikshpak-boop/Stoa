@@ -40,6 +40,43 @@ function formatFieldValue(key: ExtractedFieldKey, value: string | number, curren
   return String(value);
 }
 
+interface MockPageLine {
+  top: number;
+  width: string;
+  isHeading: boolean;
+}
+
+function generateMockPageLines(seedKey: string, contentTop: number, contentHeight: number): MockPageLine[] {
+  let seed = 0;
+  for (let i = 0; i < seedKey.length; i++) {
+    seed = (seed * 31 + seedKey.charCodeAt(i)) >>> 0;
+  }
+  const next = () => {
+    seed = (seed * 1103515245 + 12345) >>> 0;
+    return (seed >>> 8) / 0xffffff;
+  };
+
+  const lines: MockPageLine[] = [];
+  let cursor = contentTop;
+  let sinceHeading = 0;
+
+  while (cursor < contentTop + contentHeight - 12) {
+    const startsHeading = sinceHeading > 4 + Math.floor(next() * 3);
+    if (startsHeading) {
+      lines.push({ top: cursor, width: `${28 + Math.round(next() * 20)}%`, isHeading: true });
+      cursor += 22;
+      sinceHeading = 0;
+    } else {
+      const isLastInParagraph = next() > 0.75;
+      lines.push({ top: cursor, width: isLastInParagraph ? `${40 + Math.round(next() * 30)}%` : `${78 + Math.round(next() * 18)}%`, isHeading: false });
+      cursor += 16;
+      sinceHeading += 1;
+    }
+  }
+
+  return lines;
+}
+
 export function VerificationSplitView({ deal }: { deal: Deal }) {
   const fieldKeys = Object.keys(deal.extractedFields) as ExtractedFieldKey[];
   const [selectedKey, setSelectedKey] = useState<ExtractedFieldKey>(fieldKeys[0] ?? "companyName");
@@ -47,6 +84,12 @@ export function VerificationSplitView({ deal }: { deal: Deal }) {
   const selectedField = deal.extractedFields[selectedKey];
 
   const scaleX = SOURCE_CANVAS_WIDTH / PAGE_WIDTH;
+  const canvasHeight = SOURCE_CANVAS_WIDTH * (PAGE_HEIGHT / PAGE_WIDTH);
+  const mockLines = generateMockPageLines(
+    `${selectedField.sourceDocument}-${selectedField.sourcePage}`,
+    56,
+    canvasHeight - 56 - 16,
+  );
 
   return (
     <div className="grid grid-cols-1 gap-0 overflow-hidden rounded-lg border border-border bg-white lg:grid-cols-2">
@@ -98,17 +141,17 @@ export function VerificationSplitView({ deal }: { deal: Deal }) {
         <div className="flex flex-1 items-start justify-center bg-secondary/5 p-6">
           <div
             className="relative shrink-0 rounded-sm border border-border bg-white shadow-sm"
-            style={{ width: SOURCE_CANVAS_WIDTH, height: SOURCE_CANVAS_WIDTH * (PAGE_HEIGHT / PAGE_WIDTH) }}
+            style={{ width: SOURCE_CANVAS_WIDTH, height: canvasHeight }}
           >
             <div className="absolute inset-x-0 top-0 flex items-center justify-between border-b border-border px-4 py-2 text-xs text-muted-foreground">
               <span>{selectedField.sourceDocument}</span>
               <span>Page {selectedField.sourcePage}</span>
             </div>
-            {Array.from({ length: 9 }).map((_, lineIndex) => (
+            {mockLines.map((line, lineIndex) => (
               <div
                 key={lineIndex}
-                className="absolute left-8 h-2 rounded-sm bg-muted"
-                style={{ top: 56 + lineIndex * 26, width: lineIndex % 3 === 0 ? "70%" : "88%" }}
+                className={cn("absolute left-8 rounded-sm", line.isHeading ? "h-3 bg-muted-foreground/25" : "h-2 bg-muted")}
+                style={{ top: line.top, width: line.width }}
               />
             ))}
             <div
