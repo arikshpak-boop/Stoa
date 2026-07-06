@@ -64,7 +64,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<{ deal: D
   const extraction = runMockExtraction(payload);
 
   const store = getDealStore();
-  const deal = store.create({
+  const deal = await store.create({
     organizationName: payload.organizationName,
     target: {
       companyName: payload.companyName,

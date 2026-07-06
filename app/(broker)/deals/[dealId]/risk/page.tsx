@@ -7,8 +7,8 @@ import { UnderwritingGrid } from "@/components/risk/UnderwritingGrid";
 import { ExclusionReportEditor } from "@/components/risk/ExclusionReportEditor";
 import { DataRoomQualityPanel } from "@/components/risk/DataRoomQualityPanel";
 
-export default function DealRiskPage({ params }: { params: { dealId: string } }) {
-  const deal = getDealStore().get(params.dealId);
+export default async function DealRiskPage({ params }: { params: { dealId: string } }) {
+  const deal = await getDealStore().get(params.dealId);
 
   if (!deal) {
     notFound();

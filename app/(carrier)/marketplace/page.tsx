@@ -5,8 +5,8 @@ import { computeCarrierKpis } from "@/lib/kpi";
 import { KpiCard, KpiRow } from "@/components/dashboard/KpiCard";
 import { CarrierDashboardTable } from "@/components/marketplace/CarrierDashboardTable";
 
-export default function CarrierMarketplacePage() {
-  const allDeals = getDealStore().list();
+export default async function CarrierMarketplacePage() {
+  const allDeals = await getDealStore().list();
   const session = getServerSession();
   const deals = allDeals.filter((deal) => deal.status === "Submitted" || deal.status === "Analyzed" || deal.status === "Closed");
   const kpis = computeCarrierKpis(allDeals, session?.organizationName ?? "");

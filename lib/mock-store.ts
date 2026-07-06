@@ -3,6 +3,7 @@ import { computeSnapshotHash } from "./hash";
 import { calculateLimitPercentOfEv, calculatePremium } from "./premium";
 import { computeWarrantyRiskProfile, generateExclusionReport } from "./risk-engine";
 import { assessDataRoomQuality } from "./dd-quality";
+import { redis, isRedisConfigured } from "./redis";
 import type {
   Bid,
   Deal,
@@ -266,7 +267,22 @@ const SEED_SPECS: SeedSpec[] = [
   },
 ];
 
-class DealStore {
+interface DealStore {
+  list(): Promise<Deal[]>;
+  get(dealId: string): Promise<Deal | undefined>;
+  create(spec: SeedSpec): Promise<Deal>;
+  addBid(dealId: string, bid: Bid): Promise<Deal | undefined>;
+  updateBidStatus(dealId: string, bidId: string, bidStatus: Bid["bidStatus"]): Promise<Deal | undefined>;
+}
+
+/**
+ * Used when no Redis is configured (e.g. local dev with no env vars set).
+ * Data lives only in this process's memory — fine for a single long-running
+ * `next dev` process, but does not survive across Vercel's serverless
+ * function instances, which is exactly why the Redis-backed store below
+ * exists for production.
+ */
+class InMemoryDealStore implements DealStore {
   private deals: Map<string, Deal> = new Map();
 
   constructor() {
@@ -276,23 +292,23 @@ class DealStore {
     }
   }
 
-  list(): Deal[] {
+  async list(): Promise<Deal[]> {
     return Array.from(this.deals.values()).sort(
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
   }
 
-  get(dealId: string): Deal | undefined {
+  async get(dealId: string): Promise<Deal | undefined> {
     return this.deals.get(dealId);
   }
 
-  create(spec: SeedSpec): Deal {
+  async create(spec: SeedSpec): Promise<Deal> {
     const deal = buildDeal(spec);
     this.deals.set(deal.id, deal);
     return deal;
   }
 
-  addBid(dealId: string, bid: Bid): Deal | undefined {
+  async addBid(dealId: string, bid: Bid): Promise<Deal | undefined> {
     const deal = this.deals.get(dealId);
     if (!deal) return undefined;
     const updated: Deal = { ...deal, bids: [...deal.bids, bid], updatedAt: new Date().toISOString() };
@@ -300,7 +316,7 @@ class DealStore {
     return updated;
   }
 
-  updateBidStatus(dealId: string, bidId: string, bidStatus: Bid["bidStatus"]): Deal | undefined {
+  async updateBidStatus(dealId: string, bidId: string, bidStatus: Bid["bidStatus"]): Promise<Deal | undefined> {
     const deal = this.deals.get(dealId);
     if (!deal) return undefined;
     const updated: Deal = {
@@ -313,6 +329,91 @@ class DealStore {
   }
 }
 
+const DEALS_INDEX_KEY = "stoa:deals:index";
+const SEED_LOCK_KEY = "stoa:seed:lock";
+const dealKey = (dealId: string) => `stoa:deal:${dealId}`;
+
+/**
+ * Persists to Upstash Redis so deals, bids, and signups survive across
+ * Vercel's independent serverless function instances. Seeds are inserted
+ * exactly once — guarded by a short-lived lock so two cold starts racing
+ * on first request don't double-seed.
+ */
+class RedisDealStore implements DealStore {
+  private seeded = false;
+
+  private async ensureSeeded(): Promise<void> {
+    if (this.seeded || !redis) return;
+
+    const existingCount = await redis.scard(DEALS_INDEX_KEY);
+    if (existingCount > 0) {
+      this.seeded = true;
+      return;
+    }
+
+    const acquiredLock = await redis.set(SEED_LOCK_KEY, "1", { nx: true, ex: 30 });
+    if (!acquiredLock) {
+      this.seeded = true;
+      return;
+    }
+
+    const pipeline = redis.pipeline();
+    for (const spec of SEED_SPECS) {
+      const deal = buildDeal(spec);
+      pipeline.set(dealKey(deal.id), deal);
+      pipeline.sadd(DEALS_INDEX_KEY, deal.id);
+    }
+    await pipeline.exec();
+    this.seeded = true;
+  }
+
+  async list(): Promise<Deal[]> {
+    await this.ensureSeeded();
+    const ids = await redis!.smembers(DEALS_INDEX_KEY);
+    if (ids.length === 0) return [];
+    const deals = await Promise.all(ids.map((id) => redis!.get<Deal>(dealKey(id))));
+    return deals
+      .filter((deal): deal is Deal => deal !== null)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async get(dealId: string): Promise<Deal | undefined> {
+    await this.ensureSeeded();
+    const deal = await redis!.get<Deal>(dealKey(dealId));
+    return deal ?? undefined;
+  }
+
+  async create(spec: SeedSpec): Promise<Deal> {
+    await this.ensureSeeded();
+    const deal = buildDeal(spec);
+    await redis!.set(dealKey(deal.id), deal);
+    await redis!.sadd(DEALS_INDEX_KEY, deal.id);
+    return deal;
+  }
+
+  async addBid(dealId: string, bid: Bid): Promise<Deal | undefined> {
+    await this.ensureSeeded();
+    const deal = await this.get(dealId);
+    if (!deal) return undefined;
+    const updated: Deal = { ...deal, bids: [...deal.bids, bid], updatedAt: new Date().toISOString() };
+    await redis!.set(dealKey(dealId), updated);
+    return updated;
+  }
+
+  async updateBidStatus(dealId: string, bidId: string, bidStatus: Bid["bidStatus"]): Promise<Deal | undefined> {
+    await this.ensureSeeded();
+    const deal = await this.get(dealId);
+    if (!deal) return undefined;
+    const updated: Deal = {
+      ...deal,
+      bids: deal.bids.map((b) => (b.id === bidId ? { ...b, bidStatus } : b)),
+      updatedAt: new Date().toISOString(),
+    };
+    await redis!.set(dealKey(dealId), updated);
+    return updated;
+  }
+}
+
 declare global {
   // eslint-disable-next-line no-var
   var __stoaDealStore: DealStore | undefined;
@@ -320,10 +421,10 @@ declare global {
 
 export function getDealStore(): DealStore {
   if (!global.__stoaDealStore) {
-    global.__stoaDealStore = new DealStore();
+    global.__stoaDealStore = isRedisConfigured ? new RedisDealStore() : new InMemoryDealStore();
   }
   return global.__stoaDealStore;
 }
 
-export type { SeedSpec };
+export type { SeedSpec, DealStore };
 export { buildDeal };

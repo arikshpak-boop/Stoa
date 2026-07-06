@@ -8,7 +8,7 @@ interface RouteParams {
 
 export async function GET(_request: NextRequest, { params }: RouteParams): Promise<NextResponse<{ deal: Deal } | { error: string }>> {
   const store = getDealStore();
-  const deal = store.get(params.dealId);
+  const deal = await store.get(params.dealId);
 
   if (!deal) {
     return NextResponse.json({ error: `Deal ${params.dealId} not found.` }, { status: 404 });

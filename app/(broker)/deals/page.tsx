@@ -17,8 +17,8 @@ const STATUS_VARIANT: Record<Deal["status"], "muted" | "default" | "success" | "
   Closed: "success",
 };
 
-export default function DealsPipelinePage() {
-  const deals = getDealStore().list();
+export default async function DealsPipelinePage() {
+  const deals = await getDealStore().list();
   const kpis = computeBrokerKpis(deals);
 
   return (

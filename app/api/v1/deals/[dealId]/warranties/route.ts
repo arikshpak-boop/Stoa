@@ -11,7 +11,7 @@ export async function GET(
   { params }: RouteParams,
 ): Promise<NextResponse<{ warranties: DealWarranty[]; exclusions: ExclusionClause[] } | { error: string }>> {
   const store = getDealStore();
-  const deal = store.get(params.dealId);
+  const deal = await store.get(params.dealId);
 
   if (!deal) {
     return NextResponse.json({ error: `Deal ${params.dealId} not found.` }, { status: 404 });

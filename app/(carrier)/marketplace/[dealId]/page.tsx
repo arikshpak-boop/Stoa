@@ -13,8 +13,8 @@ import { DataRoomQualityPanel } from "@/components/risk/DataRoomQualityPanel";
 import { BidForm } from "@/components/marketplace/BidForm";
 import { BidsTable } from "@/components/marketplace/BidsTable";
 
-export default function CarrierDealWorkspacePage({ params }: { params: { dealId: string } }) {
-  const deal = getDealStore().get(params.dealId);
+export default async function CarrierDealWorkspacePage({ params }: { params: { dealId: string } }) {
+  const deal = await getDealStore().get(params.dealId);
   const session = getServerSession();
 
   if (!deal || !session) {

@@ -7,7 +7,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<{ deals: D
   const statusFilter = request.nextUrl.searchParams.get("status");
   const sectorFilter = request.nextUrl.searchParams.get("sector");
 
-  let deals = store.list();
+  let deals = await store.list();
 
   if (statusFilter) {
     deals = deals.filter((deal) => deal.status === statusFilter);

@@ -21,7 +21,7 @@ interface BidRequestBody {
 
 export async function GET(_request: NextRequest, { params }: RouteParams): Promise<NextResponse<{ bids: Bid[] } | { error: string }>> {
   const store = getDealStore();
-  const deal = store.get(params.dealId);
+  const deal = await store.get(params.dealId);
 
   if (!deal) {
     return NextResponse.json({ error: `Deal ${params.dealId} not found.` }, { status: 404 });
@@ -32,7 +32,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams): Promi
 
 export async function POST(request: NextRequest, { params }: RouteParams): Promise<NextResponse<{ bid: Bid } | { error: string }>> {
   const store = getDealStore();
-  const deal = store.get(params.dealId);
+  const deal = await store.get(params.dealId);
 
   if (!deal) {
     return NextResponse.json({ error: `Deal ${params.dealId} not found.` }, { status: 404 });
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     submittedAt: new Date().toISOString(),
   };
 
-  const updatedDeal = store.addBid(deal.id, bid);
+  const updatedDeal = await store.addBid(deal.id, bid);
 
   if (!updatedDeal) {
     return NextResponse.json({ error: "Failed to persist bid." }, { status: 500 });

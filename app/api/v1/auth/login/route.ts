@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { encodeSession, getAccountDirectory, SESSION_COOKIE_NAME, type Session } from "@/lib/session";
+import { encodeSession, SESSION_COOKIE_NAME, type Session } from "@/lib/session";
+import { getAccountDirectory } from "@/lib/account-directory";
 
 interface LoginRequestBody {
   email: string;
@@ -15,7 +16,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<{ session
     return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
   }
 
-  const account = getAccountDirectory().find(body.email);
+  const account = await getAccountDirectory().find(body.email);
 
   if (!account || account.password !== body.password) {
     return NextResponse.json({ error: "We couldn't find an account with those credentials." }, { status: 401 });

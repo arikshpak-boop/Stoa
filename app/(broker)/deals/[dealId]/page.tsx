@@ -10,8 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { VerificationSplitView } from "@/components/ingestion/VerificationSplitView";
 import { BidsTable } from "@/components/marketplace/BidsTable";
 
-export default function DealDetailPage({ params }: { params: { dealId: string } }) {
-  const deal = getDealStore().get(params.dealId);
+export default async function DealDetailPage({ params }: { params: { dealId: string } }) {
+  const deal = await getDealStore().get(params.dealId);
 
   if (!deal) {
     notFound();

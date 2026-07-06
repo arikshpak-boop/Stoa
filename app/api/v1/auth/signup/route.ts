@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { encodeSession, getAccountDirectory, SESSION_COOKIE_NAME, type Session, type UserRole } from "@/lib/session";
+import { encodeSession, SESSION_COOKIE_NAME, type Session, type UserRole } from "@/lib/session";
+import { getAccountDirectory } from "@/lib/account-directory";
 
 interface SignupRequestBody {
   organizationName: string;
@@ -27,11 +28,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<{ session
 
   const directory = getAccountDirectory();
 
-  if (directory.find(body.email)) {
+  if (await directory.find(body.email)) {
     return NextResponse.json({ error: "An account with that email already exists. Try signing in instead." }, { status: 409 });
   }
 
-  directory.register({
+  await directory.register({
     email: body.email,
     password: body.password,
     organizationName: body.organizationName,
