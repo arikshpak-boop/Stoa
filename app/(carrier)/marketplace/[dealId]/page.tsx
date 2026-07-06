@@ -92,7 +92,7 @@ export default async function CarrierDealWorkspacePage({ params }: { params: { d
           </div>
         </div>
 
-        <div>
+        <div id="configure-bid" className="scroll-mt-6">
           <BidForm
             dealId={deal.id}
             enterpriseValue={deal.financials.enterpriseValue}
