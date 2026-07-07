@@ -42,11 +42,6 @@ export function computeBrokerPortfolioKpis(deals: Deal[]): BrokerPortfolioKpis {
   return { totalDealValue, activeDeals: activeDealsList.length, totalBids, averageDaysToClose };
 }
 
-export function averageRiskScore(deal: Deal): number {
-  const average = deal.warranties.reduce((total, w) => total + w.severityScore, 0) / deal.warranties.length;
-  return Math.round(average);
-}
-
 /**
  * Display-only mock values for dashboard "vanity" stats that would, in a
  * real data room, run into the hundreds of documents and weeks of pipeline
@@ -58,6 +53,7 @@ export function averageRiskScore(deal: Deal): number {
  */
 const MOCK_DAYS_ACTIVE_CYCLE = [3, 7, 12, 18, 25];
 const MOCK_DOCUMENT_COUNT_CYCLE = [24, 38, 52, 29, 61, 33, 47];
+const MOCK_RISK_SCORE_CYCLE = [72, 65, 92, 78, 60, 85, 70];
 
 export function mockDaysActive(index: number): number {
   return MOCK_DAYS_ACTIVE_CYCLE[index % MOCK_DAYS_ACTIVE_CYCLE.length]!;
@@ -65,6 +61,10 @@ export function mockDaysActive(index: number): number {
 
 export function mockDocumentCount(index: number): number {
   return MOCK_DOCUMENT_COUNT_CYCLE[index % MOCK_DOCUMENT_COUNT_CYCLE.length]!;
+}
+
+export function mockRiskScore(index: number): number {
+  return MOCK_RISK_SCORE_CYCLE[index % MOCK_RISK_SCORE_CYCLE.length]!;
 }
 
 export interface RecentActivityItem {

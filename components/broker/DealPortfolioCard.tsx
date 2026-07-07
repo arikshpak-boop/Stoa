@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { averageRiskScore, mockDaysActive, mockDocumentCount } from "@/lib/kpi";
+import { mockDaysActive, mockDocumentCount, mockRiskScore } from "@/lib/kpi";
 import { DEAL_STATUS_DISPLAY } from "@/lib/deal-status-display";
 import type { Deal } from "@/lib/types";
 
@@ -16,7 +16,7 @@ function riskScoreColor(score: number): string {
 
 export function DealPortfolioCard({ deal, index }: { deal: Deal; index: number }) {
   const statusDisplay = DEAL_STATUS_DISPLAY[deal.status];
-  const riskScore = averageRiskScore(deal);
+  const riskScore = mockRiskScore(index);
   const activeBidCount = deal.bids.filter((bid) => bid.bidStatus === "Pending").length;
   const dealValueMillions = Math.round(deal.financials.enterpriseValue / 1_000_000);
 

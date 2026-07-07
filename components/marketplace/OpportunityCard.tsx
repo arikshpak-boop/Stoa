@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/premium";
-import { averageRiskScore, mockDocumentCount, summarizeOpportunity } from "@/lib/kpi";
+import { mockDocumentCount, mockRiskScore, summarizeOpportunity } from "@/lib/kpi";
 import type { Deal } from "@/lib/types";
 
 function StatBlock({ label, value }: { label: string; value: string }) {
@@ -18,7 +18,7 @@ function StatBlock({ label, value }: { label: string; value: string }) {
 
 export function OpportunityCard({ deal, index }: { deal: Deal; index: number }) {
   const summary = summarizeOpportunity(deal);
-  const riskScore = averageRiskScore(deal);
+  const riskScore = mockRiskScore(index);
 
   return (
     <Card>
