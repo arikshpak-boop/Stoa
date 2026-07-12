@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { KpiCard, KpiRow } from "@/components/dashboard/KpiCard";
 import { OpportunityList } from "@/components/marketplace/OpportunityList";
 import { ActiveBidCard } from "@/components/marketplace/ActiveBidCard";
+import { WonDealsPanel, type WonDeal } from "@/components/marketplace/WonDealsPanel";
 
 export default async function CarrierMarketplacePage() {
   const allDeals = await getDealStore().list();
@@ -15,6 +16,10 @@ export default async function CarrierMarketplacePage() {
   const deals = allDeals.filter((deal) => deal.status === "Submitted" || deal.status === "Analyzed" || deal.status === "Closed");
   const kpis = computeCarrierKpis(allDeals, organizationName);
   const myActiveBids = summarizeMyActiveBids(allDeals, organizationName);
+  const myWonDeals: WonDeal[] = allDeals.flatMap((deal) => {
+    const bid = deal.bids.find((b) => b.carrierName === organizationName && b.bidStatus === "Accepted");
+    return bid ? [{ deal, bid }] : [];
+  });
 
   return (
     <div className="mx-auto max-w-6xl px-8 py-10">
@@ -58,7 +63,7 @@ export default async function CarrierMarketplacePage() {
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <OpportunityList deals={deals} />
+          <OpportunityList deals={deals} organizationName={organizationName} />
         </div>
 
         <div>
@@ -76,6 +81,12 @@ export default async function CarrierMarketplacePage() {
           </div>
         </div>
       </div>
+
+      {myWonDeals.length > 0 && (
+        <div className="mt-8 max-w-2xl">
+          <WonDealsPanel wonDeals={myWonDeals} />
+        </div>
+      )}
     </div>
   );
 }

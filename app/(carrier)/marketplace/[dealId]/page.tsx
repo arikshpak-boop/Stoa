@@ -1,17 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { ArrowLeft, PhoneCall, ShieldCheck } from "lucide-react";
 import { getDealStore } from "@/lib/mock-store";
 import { getServerSession } from "@/lib/get-session";
 import { formatCurrency } from "@/lib/premium";
 import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { UnderwritingGrid } from "@/components/risk/UnderwritingGrid";
 import { DataRoomQualityPanel } from "@/components/risk/DataRoomQualityPanel";
-import { BidForm } from "@/components/marketplace/BidForm";
+import { BidDialog } from "@/components/marketplace/BidDialog";
 import { BidsTable } from "@/components/marketplace/BidsTable";
+import { ClarificationsPanel } from "@/components/underwriting/ClarificationsPanel";
 
 export default async function CarrierDealWorkspacePage({ params }: { params: { dealId: string } }) {
   const deal = await getDealStore().get(params.dealId);
@@ -66,6 +67,8 @@ export default async function CarrierDealWorkspacePage({ params }: { params: { d
             </div>
           </div>
 
+          <ClarificationsPanel questions={deal.underwritingQuestions ?? []} />
+
           <div>
             <h3 className="text-base font-semibold tracking-tight text-primary">Specific Exclusions</h3>
             <div className="mt-3 space-y-3">
@@ -93,13 +96,45 @@ export default async function CarrierDealWorkspacePage({ params }: { params: { d
         </div>
 
         <div id="configure-bid" className="scroll-mt-6">
-          <BidForm
-            dealId={deal.id}
-            enterpriseValue={deal.financials.enterpriseValue}
-            currency={deal.financials.currency}
-            carrierName={session.organizationName}
-            suggestedRateOnLinePercent={deal.ddQuality.recommendedRateOnLinePercent ?? undefined}
-          />
+          <Card className="sticky top-6">
+            <CardHeader>
+              <CardTitle>Place a Bid</CardTitle>
+              <CardDescription>Configure your coverage terms for {deal.target.companyName}.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <dl className="grid grid-cols-2 gap-y-2 text-sm">
+                <dt className="text-muted-foreground">Enterprise Value</dt>
+                <dd className="text-right font-medium tabular-nums text-primary">
+                  {formatCurrency(deal.financials.enterpriseValue, deal.financials.currency)}
+                </dd>
+                {deal.ddQuality.recommendedRateOnLinePercent !== null && (
+                  <>
+                    <dt className="text-muted-foreground">Recommended RoL</dt>
+                    <dd className="text-right font-medium tabular-nums text-primary">
+                      {deal.ddQuality.recommendedRateOnLinePercent.toFixed(2)}%
+                    </dd>
+                  </>
+                )}
+                <dt className="text-muted-foreground">Bids Received</dt>
+                <dd className="text-right font-medium tabular-nums text-primary">{deal.bids.length}</dd>
+              </dl>
+              <BidDialog
+                dealId={deal.id}
+                dealName={deal.target.companyName}
+                enterpriseValue={deal.financials.enterpriseValue}
+                currency={deal.financials.currency}
+                carrierName={session.organizationName}
+                suggestedRateOnLinePercent={deal.ddQuality.recommendedRateOnLinePercent ?? undefined}
+                trigger={<Button className="w-full">Submit Bid</Button>}
+              />
+              <Button variant="outline" className="w-full" asChild>
+                <Link href={`/marketplace/${deal.id}/underwriting-call`}>
+                  <PhoneCall className="mr-2 h-4 w-4" aria-hidden="true" />
+                  Request Underwriting Call
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

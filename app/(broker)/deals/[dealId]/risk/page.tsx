@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { UnderwritingGrid } from "@/components/risk/UnderwritingGrid";
 import { ExclusionReportEditor } from "@/components/risk/ExclusionReportEditor";
 import { DataRoomQualityPanel } from "@/components/risk/DataRoomQualityPanel";
+import { ClarificationsPanel } from "@/components/underwriting/ClarificationsPanel";
 
 export default async function DealRiskPage({ params }: { params: { dealId: string } }) {
   const deal = await getDealStore().get(params.dealId);
@@ -38,6 +39,10 @@ export default async function DealRiskPage({ params }: { params: { dealId: strin
 
       <div className="mt-8">
         <UnderwritingGrid warranties={deal.warranties} exclusions={deal.exclusions} />
+      </div>
+
+      <div className="mt-8">
+        <ClarificationsPanel questions={deal.underwritingQuestions ?? []} />
       </div>
 
       <div className="mt-10">

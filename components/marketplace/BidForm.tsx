@@ -17,6 +17,10 @@ interface BidFormProps {
   currency: string;
   carrierName: string;
   suggestedRateOnLinePercent?: number;
+  /** Renders just the form (no Card chrome) for use inside a Dialog, which already provides its own title/description. */
+  bare?: boolean;
+  /** Called a moment after a successful submission, e.g. to close a hosting dialog. */
+  onSubmitted?: () => void;
 }
 
 export function BidForm({
@@ -25,6 +29,8 @@ export function BidForm({
   currency,
   carrierName: initialCarrierName,
   suggestedRateOnLinePercent,
+  bare = false,
+  onSubmitted,
 }: BidFormProps) {
   const router = useRouter();
   const [carrierName, setCarrierName] = useState(initialCarrierName);
@@ -77,6 +83,9 @@ export function BidForm({
 
       setSubmitSuccess(true);
       router.refresh();
+      if (onSubmitted) {
+        setTimeout(onSubmitted, 1400);
+      }
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "Unexpected error submitting bid.");
     } finally {
@@ -84,14 +93,8 @@ export function BidForm({
     }
   }
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Configure Bid</CardTitle>
-        <CardDescription>Set the coverage terms you&apos;re willing to offer on this risk.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-5">
+  const formBody = (
+    <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1.5">
             <Label htmlFor="carrierName">Carrier</Label>
             <Input id="carrierName" value={carrierName} onChange={(e) => setCarrierName(e.target.value)} />
@@ -188,7 +191,19 @@ export function BidForm({
             )}
           </Button>
         </form>
-      </CardContent>
+  );
+
+  if (bare) {
+    return formBody;
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Configure Bid</CardTitle>
+        <CardDescription>Set the coverage terms you&apos;re willing to offer on this risk.</CardDescription>
+      </CardHeader>
+      <CardContent>{formBody}</CardContent>
     </Card>
   );
 }

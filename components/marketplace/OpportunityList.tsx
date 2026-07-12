@@ -31,7 +31,7 @@ function highestRiskLevel(deal: Deal): RiskLevel {
   return "Low";
 }
 
-export function OpportunityList({ deals }: { deals: Deal[] }) {
+export function OpportunityList({ deals, organizationName }: { deals: Deal[]; organizationName: string }) {
   const [sectorFilter, setSectorFilter] = useState<Sector | "All Sectors">("All Sectors");
   const [riskFilter, setRiskFilter] = useState<RiskLevel | "Any Risk Appetite">("Any Risk Appetite");
   const [valueBandLabel, setValueBandLabel] = useState<(typeof VALUE_BANDS)[number]["label"]>("All Deal Values");
@@ -95,7 +95,7 @@ export function OpportunityList({ deals }: { deals: Deal[] }) {
 
       <div className="mt-4 space-y-4">
         {filteredDeals.map((deal, index) => (
-          <OpportunityCard key={deal.id} deal={deal} index={index} />
+          <OpportunityCard key={deal.id} deal={deal} index={index} organizationName={organizationName} />
         ))}
         {filteredDeals.length === 0 && (
           <div className="rounded-lg border border-border bg-white py-10 text-center text-sm text-muted-foreground">

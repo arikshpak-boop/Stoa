@@ -3,6 +3,7 @@ import { Repeat } from "lucide-react";
 import { Logo } from "./Logo";
 import { Badge } from "@/components/ui/badge";
 import { SignOutButton } from "./SignOutButton";
+import { BackButton } from "./BackButton";
 
 interface TopNavProps {
   portalLabel: string;
@@ -16,6 +17,8 @@ export function TopNav({ portalLabel, organizationName, userEmail, showRoleSwitc
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-primary px-6">
       <div className="flex items-center gap-4">
         <Logo dark={false} />
+        <span className="h-5 w-px bg-white/20" aria-hidden="true" />
+        <BackButton />
         <span className="h-5 w-px bg-white/20" aria-hidden="true" />
         <span className="text-sm font-medium text-white/80">{portalLabel}</span>
       </div>

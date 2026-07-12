@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { EyebrowBadge } from "@/components/layout/EyebrowBadge";
 import { roleHomePath, type Session, type UserRole } from "@/lib/session";
 
 const ROLE_OPTIONS: Array<{ role: UserRole; title: string; description: string; icon: typeof Briefcase }> = [
@@ -74,9 +75,13 @@ function SignupForm() {
   }
 
   return (
-    <Card className="w-full max-w-xl">
+    <div className="w-full max-w-xl">
+      <div className="mb-6 flex justify-center">
+        <EyebrowBadge>Institutional Trust · Algorithmic Precision</EyebrowBadge>
+      </div>
+      <Card>
       <CardHeader>
-        <CardTitle>Create Your Stoa Account</CardTitle>
+        <CardTitle className="text-2xl font-extrabold tracking-tight text-primary">Create Your Stoa Account</CardTitle>
         <CardDescription>Choose the workspace that matches your role in the transaction.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -159,6 +164,7 @@ function SignupForm() {
           </Link>
         </p>
       </CardContent>
-    </Card>
+      </Card>
+    </div>
   );
 }

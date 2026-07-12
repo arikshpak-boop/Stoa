@@ -146,6 +146,21 @@ export interface Bid {
   submittedAt: string;
 }
 
+/**
+ * A Level-2 underwriting-call question: asked by a carrier when the
+ * AI briefing (Level 1) can't answer from the data room alone, answered
+ * by the deal maker on-platform, and then surfaced on the risk report.
+ */
+export interface UnderwritingOpenQuestion {
+  id: string;
+  dealId: string;
+  question: string;
+  askedBy: string;
+  askedAt: string;
+  answer: string | null;
+  answeredAt: string | null;
+}
+
 export interface Deal {
   id: string;
   organizationId: string;
@@ -171,6 +186,8 @@ export interface Deal {
   warranties: DealWarranty[];
   exclusions: ExclusionClause[];
   bids: Bid[];
+  /** Optional because deals persisted before the Underwriting Call feature won't carry it. */
+  underwritingQuestions?: UnderwritingOpenQuestion[];
   ddQuality: DDQualityAssessment;
   version: number;
   snapshotHash: string;
