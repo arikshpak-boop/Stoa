@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { Upload, Radio } from "lucide-react";
+import { PhoneCall, Upload } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { mockDaysActive, mockDocumentCount, mockRiskScore } from "@/lib/kpi";
 import { DEAL_STATUS_DISPLAY } from "@/lib/deal-status-display";
+import { RequestBidsButton } from "@/components/broker/RequestBidsButton";
 import type { Deal } from "@/lib/types";
 
 function riskScoreColor(score: number): string {
@@ -19,6 +20,7 @@ export function DealPortfolioCard({ deal, index }: { deal: Deal; index: number }
   const riskScore = mockRiskScore(index);
   const activeBidCount = deal.bids.filter((bid) => bid.bidStatus === "Pending").length;
   const dealValueMillions = Math.round(deal.financials.enterpriseValue / 1_000_000);
+  const pendingQuestionCount = (deal.underwritingQuestions ?? []).filter((q) => q.answer === null).length;
 
   return (
     <Card>
@@ -59,22 +61,26 @@ export function DealPortfolioCard({ deal, index }: { deal: Deal; index: number }
           </div>
         </div>
 
-        {deal.status === "Draft" && (
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            <Button variant="outline" size="sm" asChild>
-              <Link href={`/deals/${deal.id}`}>
-                <Upload className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-                Upload Documents
-              </Link>
-            </Button>
-            <Button size="sm" asChild>
-              <Link href={`/deals/${deal.id}`}>
-                <Radio className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-                Request Bids
-              </Link>
-            </Button>
-          </div>
-        )}
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/deals/${deal.id}#documents`}>
+              <Upload className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+              Upload Documents
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/deals/${deal.id}/underwriting-call`}>
+              <PhoneCall className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+              Underwriting Call
+              {pendingQuestionCount > 0 && (
+                <span className="ml-1.5 rounded-full bg-warning/15 px-1.5 text-xs font-semibold text-warning">
+                  {pendingQuestionCount}
+                </span>
+              )}
+            </Link>
+          </Button>
+          {deal.status === "Draft" && <RequestBidsButton dealId={deal.id} />}
+        </div>
       </CardContent>
     </Card>
   );

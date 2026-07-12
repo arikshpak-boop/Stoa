@@ -299,6 +299,16 @@ interface DealStore {
   acceptBid(dealId: string, bidId: string): Promise<Deal | undefined>;
   addUnderwritingQuestion(dealId: string, question: UnderwritingOpenQuestion): Promise<Deal | undefined>;
   answerUnderwritingQuestion(dealId: string, questionId: string, answer: string): Promise<Deal | undefined>;
+  updateDealStatus(dealId: string, status: Deal["status"]): Promise<Deal | undefined>;
+  addDocuments(dealId: string, documents: VdrDocument[]): Promise<Deal | undefined>;
+}
+
+function applyStatusUpdate(deal: Deal, status: Deal["status"]): Deal {
+  return { ...deal, status, updatedAt: new Date().toISOString() };
+}
+
+function applyDocumentAdd(deal: Deal, documents: VdrDocument[]): Deal {
+  return { ...deal, documents: [...deal.documents, ...documents], updatedAt: new Date().toISOString() };
 }
 
 function applyQuestionAdd(deal: Deal, question: UnderwritingOpenQuestion): Deal {
@@ -404,6 +414,22 @@ class InMemoryDealStore implements DealStore {
     const deal = this.deals.get(dealId);
     if (!deal) return undefined;
     const updated = applyQuestionAnswer(deal, questionId, answer);
+    this.deals.set(dealId, updated);
+    return updated;
+  }
+
+  async updateDealStatus(dealId: string, status: Deal["status"]): Promise<Deal | undefined> {
+    const deal = this.deals.get(dealId);
+    if (!deal) return undefined;
+    const updated = applyStatusUpdate(deal, status);
+    this.deals.set(dealId, updated);
+    return updated;
+  }
+
+  async addDocuments(dealId: string, documents: VdrDocument[]): Promise<Deal | undefined> {
+    const deal = this.deals.get(dealId);
+    if (!deal) return undefined;
+    const updated = applyDocumentAdd(deal, documents);
     this.deals.set(dealId, updated);
     return updated;
   }
@@ -516,6 +542,24 @@ class RedisDealStore implements DealStore {
     const deal = await this.get(dealId);
     if (!deal) return undefined;
     const updated = applyQuestionAnswer(deal, questionId, answer);
+    await redis!.set(dealKey(dealId), updated);
+    return updated;
+  }
+
+  async updateDealStatus(dealId: string, status: Deal["status"]): Promise<Deal | undefined> {
+    await this.ensureSeeded();
+    const deal = await this.get(dealId);
+    if (!deal) return undefined;
+    const updated = applyStatusUpdate(deal, status);
+    await redis!.set(dealKey(dealId), updated);
+    return updated;
+  }
+
+  async addDocuments(dealId: string, documents: VdrDocument[]): Promise<Deal | undefined> {
+    await this.ensureSeeded();
+    const deal = await this.get(dealId);
+    if (!deal) return undefined;
+    const updated = applyDocumentAdd(deal, documents);
     await redis!.set(dealKey(dealId), updated);
     return updated;
   }

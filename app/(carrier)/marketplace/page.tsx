@@ -1,7 +1,7 @@
 import { DollarSign, FileText, TrendingUp, Zap } from "lucide-react";
 import { getDealStore } from "@/lib/mock-store";
 import { getServerSession } from "@/lib/get-session";
-import { computeCarrierKpis, summarizeMyActiveBids } from "@/lib/kpi";
+import { carrierHasBidHistory, computeCarrierKpis, summarizeMyActiveBids, DEMO_CARRIER_KPI_FALLBACK } from "@/lib/kpi";
 import { formatCurrency } from "@/lib/premium";
 import { Badge } from "@/components/ui/badge";
 import { KpiCard, KpiRow } from "@/components/dashboard/KpiCard";
@@ -14,7 +14,10 @@ export default async function CarrierMarketplacePage() {
   const session = getServerSession();
   const organizationName = session?.organizationName ?? "";
   const deals = allDeals.filter((deal) => deal.status === "Submitted" || deal.status === "Analyzed" || deal.status === "Closed");
-  const kpis = computeCarrierKpis(allDeals, organizationName);
+  const computedKpis = computeCarrierKpis(allDeals, organizationName);
+  const kpis = carrierHasBidHistory(computedKpis)
+    ? computedKpis
+    : { ...computedKpis, ...DEMO_CARRIER_KPI_FALLBACK };
   const myActiveBids = summarizeMyActiveBids(allDeals, organizationName);
   const myWonDeals: WonDeal[] = allDeals.flatMap((deal) => {
     const bid = deal.bids.find((b) => b.carrierName === organizationName && b.bidStatus === "Accepted");
