@@ -4,13 +4,14 @@ import { ArrowRight, DollarSign, FileText, Gauge, PhoneCall, ShieldCheck, Zap } 
 import { getDealStore } from "@/lib/mock-store";
 import { formatCurrency } from "@/lib/premium";
 import { formatDate } from "@/lib/utils";
-import { mockDocumentCount, mockIndexForId, mockRiskScore } from "@/lib/kpi";
+import { mockIndexForId, mockRiskScore } from "@/lib/kpi";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { KpiCard, KpiRow } from "@/components/dashboard/KpiCard";
 import { VerificationSplitView } from "@/components/ingestion/VerificationSplitView";
 import { BidsActionsTable } from "@/components/broker/BidsActionsTable";
+import { DealDocumentsPanel } from "@/components/broker/DealDocumentsPanel";
 import { RiskCategoryHeatmap } from "@/components/risk/RiskCategoryHeatmap";
 import { DealHealthSummary } from "@/components/risk/DealHealthSummary";
 
@@ -67,7 +68,7 @@ export default async function DealDetailPage({ params }: { params: { dealId: str
           />
           <KpiCard label="Risk Score" value={`${(mockRiskScore(mockIndex) / 10).toFixed(1)}/10`} icon={Gauge} />
           <KpiCard label="Active Bids" value={String(activeBidCount)} sublabel={`${deal.bids.length} total`} icon={Zap} />
-          <KpiCard label="Documents" value={String(mockDocumentCount(mockIndex))} icon={FileText} />
+          <KpiCard label="Documents" value={String(deal.documents.length)} sublabel="in data room" icon={FileText} />
         </KpiRow>
       </div>
 
@@ -123,6 +124,10 @@ export default async function DealDetailPage({ params }: { params: { dealId: str
         <div className="mt-4">
           <BidsActionsTable dealId={deal.id} bids={deal.bids} currency={deal.financials.currency} />
         </div>
+      </div>
+
+      <div id="documents" className="mt-8 scroll-mt-6">
+        <DealDocumentsPanel dealId={deal.id} documents={deal.documents} />
       </div>
 
       <div className="mt-8">

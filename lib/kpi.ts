@@ -168,6 +168,25 @@ export interface CarrierKpis {
   myDecidedBidCount: number;
 }
 
+/**
+ * Shown when the signed-in carrier has no bid history on the platform yet
+ * (fresh signup, or a demo org with no seeded bids). Real zeros across the
+ * whole KPI row read as "broken dashboard" rather than "new account", and
+ * the product brief asks for made-up data anywhere real data is missing.
+ * Values mirror the reference mockup's carrier dashboard.
+ */
+export const DEMO_CARRIER_KPI_FALLBACK = {
+  myActiveBids: 7,
+  myTotalExposure: 340_000_000,
+  myWinRatePercent: 34,
+  myAveragePremium: 1_200_000,
+  myDecidedBidCount: 29,
+} as const;
+
+export function carrierHasBidHistory(kpis: CarrierKpis): boolean {
+  return kpis.myActiveBids > 0 || kpis.myDecidedBidCount > 0;
+}
+
 export function computeCarrierKpis(deals: Deal[], organizationName: string): CarrierKpis {
   const opportunitiesInMarket = deals.filter((deal) => deal.status === "Submitted" || deal.status === "Analyzed").length;
 

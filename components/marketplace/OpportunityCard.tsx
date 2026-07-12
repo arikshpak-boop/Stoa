@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, Clock, Eye, FileBarChart } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, Eye, FileBarChart, PhoneCall } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -74,7 +74,7 @@ export function OpportunityCard({ deal, index, organizationName }: { deal: Deal;
           )}
         </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
           <Button variant="outline" size="sm" asChild>
             <Link href={`/marketplace/${deal.id}`}>
               <Eye className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
@@ -85,6 +85,12 @@ export function OpportunityCard({ deal, index, organizationName }: { deal: Deal;
             <Link href={`/marketplace/${deal.id}#risk-report`}>
               <FileBarChart className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
               Risk Report
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/marketplace/${deal.id}/underwriting-call`}>
+              <PhoneCall className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+              Underwriting Call
             </Link>
           </Button>
           <BidDialog
