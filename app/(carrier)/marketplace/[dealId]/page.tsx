@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { ArrowLeft, PhoneCall, ShieldCheck } from "lucide-react";
 import { getDealStore } from "@/lib/mock-store";
 import { getServerSession } from "@/lib/get-session";
 import { formatCurrency } from "@/lib/premium";
@@ -12,6 +12,7 @@ import { UnderwritingGrid } from "@/components/risk/UnderwritingGrid";
 import { DataRoomQualityPanel } from "@/components/risk/DataRoomQualityPanel";
 import { BidDialog } from "@/components/marketplace/BidDialog";
 import { BidsTable } from "@/components/marketplace/BidsTable";
+import { ClarificationsPanel } from "@/components/underwriting/ClarificationsPanel";
 
 export default async function CarrierDealWorkspacePage({ params }: { params: { dealId: string } }) {
   const deal = await getDealStore().get(params.dealId);
@@ -65,6 +66,8 @@ export default async function CarrierDealWorkspacePage({ params }: { params: { d
               <UnderwritingGrid warranties={deal.warranties} exclusions={deal.exclusions} />
             </div>
           </div>
+
+          <ClarificationsPanel questions={deal.underwritingQuestions ?? []} />
 
           <div>
             <h3 className="text-base font-semibold tracking-tight text-primary">Specific Exclusions</h3>
@@ -124,6 +127,12 @@ export default async function CarrierDealWorkspacePage({ params }: { params: { d
                 suggestedRateOnLinePercent={deal.ddQuality.recommendedRateOnLinePercent ?? undefined}
                 trigger={<Button className="w-full">Submit Bid</Button>}
               />
+              <Button variant="outline" className="w-full" asChild>
+                <Link href={`/marketplace/${deal.id}/underwriting-call`}>
+                  <PhoneCall className="mr-2 h-4 w-4" aria-hidden="true" />
+                  Request Underwriting Call
+                </Link>
+              </Button>
             </CardContent>
           </Card>
         </div>

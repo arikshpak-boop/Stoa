@@ -13,6 +13,7 @@ import type {
   DealTimeline,
   ExtractedField,
   Sector,
+  UnderwritingOpenQuestion,
   VdrDocument,
   WarrantyIdentifier,
 } from "./types";
@@ -49,6 +50,7 @@ interface SeedSpec {
     signingDate: number;
     scheduledClosingDate: number;
   };
+  underwritingQuestions?: Array<{ question: string; askedBy: string; answer: string | null }>;
 }
 
 const DEFAULT_SEED_CONFIDENCE = {
@@ -165,6 +167,15 @@ function buildDeal(spec: SeedSpec): Deal {
     warranties,
     exclusions,
     bids,
+    underwritingQuestions: (spec.underwritingQuestions ?? []).map((q) => ({
+      id: randomUUID(),
+      dealId,
+      question: q.question,
+      askedBy: q.askedBy,
+      askedAt: now,
+      answer: q.answer,
+      answeredAt: q.answer === null ? null : now,
+    })),
     ddQuality,
     version: 1,
     snapshotHash,
@@ -193,6 +204,18 @@ const SEED_SPECS: SeedSpec[] = [
     bids: [
       { carrierName: "Atlas Assurance Group", limitAmount: 27_750_000, retentionAmount: 925_000, retentionTrigger: "Tipping", rateOnLinePercent: 2.8, underwritingFees: 45_000, expenseCap: 75_000, policyExpiration: "2033-08-15", bidStatus: "Pending" },
       { carrierName: "Beacon Hill Specialty Re", limitAmount: 18_500_000, retentionAmount: 740_000, retentionTrigger: "Erosion", rateOnLinePercent: 3.1, underwritingFees: 38_000, expenseCap: 60_000, policyExpiration: "2033-08-15", bidStatus: "Pending" },
+    ],
+    underwritingQuestions: [
+      {
+        question: "The open-source license audit is missing from the VDR. Can you confirm whether any copyleft (GPL/AGPL) components ship in the core product?",
+        askedBy: "Atlas Assurance Group",
+        answer: "Confirmed with the target's CTO: the core platform ships no GPL/AGPL components. Two AGPL tools are used internally for build tooling only and are not distributed. The completed license audit will be uploaded to the VDR this week.",
+      },
+      {
+        question: "Which of the top-10 customer contracts contain change-of-control consent requirements, and have any consents been obtained pre-signing?",
+        askedBy: "Beacon Hill Specialty Re",
+        answer: null,
+      },
     ],
   },
   {
@@ -273,6 +296,39 @@ interface DealStore {
   create(spec: SeedSpec): Promise<Deal>;
   addBid(dealId: string, bid: Bid): Promise<Deal | undefined>;
   updateBidStatus(dealId: string, bidId: string, bidStatus: Bid["bidStatus"]): Promise<Deal | undefined>;
+  acceptBid(dealId: string, bidId: string): Promise<Deal | undefined>;
+  addUnderwritingQuestion(dealId: string, question: UnderwritingOpenQuestion): Promise<Deal | undefined>;
+  answerUnderwritingQuestion(dealId: string, questionId: string, answer: string): Promise<Deal | undefined>;
+}
+
+function applyQuestionAdd(deal: Deal, question: UnderwritingOpenQuestion): Deal {
+  return {
+    ...deal,
+    underwritingQuestions: [...(deal.underwritingQuestions ?? []), question],
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function applyQuestionAnswer(deal: Deal, questionId: string, answer: string): Deal {
+  return {
+    ...deal,
+    underwritingQuestions: (deal.underwritingQuestions ?? []).map((q) =>
+      q.id === questionId ? { ...q, answer, answeredAt: new Date().toISOString() } : q,
+    ),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function applyBidAcceptance(deal: Deal, bidId: string): Deal {
+  return {
+    ...deal,
+    status: "Closed",
+    bids: deal.bids.map((bid) => {
+      if (bid.id === bidId) return { ...bid, bidStatus: "Accepted" };
+      return bid.bidStatus === "Pending" ? { ...bid, bidStatus: "Declined" } : bid;
+    }),
+    updatedAt: new Date().toISOString(),
+  };
 }
 
 /**
@@ -324,6 +380,30 @@ class InMemoryDealStore implements DealStore {
       bids: deal.bids.map((bid) => (bid.id === bidId ? { ...bid, bidStatus } : bid)),
       updatedAt: new Date().toISOString(),
     };
+    this.deals.set(dealId, updated);
+    return updated;
+  }
+
+  async acceptBid(dealId: string, bidId: string): Promise<Deal | undefined> {
+    const deal = this.deals.get(dealId);
+    if (!deal) return undefined;
+    const updated = applyBidAcceptance(deal, bidId);
+    this.deals.set(dealId, updated);
+    return updated;
+  }
+
+  async addUnderwritingQuestion(dealId: string, question: UnderwritingOpenQuestion): Promise<Deal | undefined> {
+    const deal = this.deals.get(dealId);
+    if (!deal) return undefined;
+    const updated = applyQuestionAdd(deal, question);
+    this.deals.set(dealId, updated);
+    return updated;
+  }
+
+  async answerUnderwritingQuestion(dealId: string, questionId: string, answer: string): Promise<Deal | undefined> {
+    const deal = this.deals.get(dealId);
+    if (!deal) return undefined;
+    const updated = applyQuestionAnswer(deal, questionId, answer);
     this.deals.set(dealId, updated);
     return updated;
   }
@@ -409,6 +489,33 @@ class RedisDealStore implements DealStore {
       bids: deal.bids.map((b) => (b.id === bidId ? { ...b, bidStatus } : b)),
       updatedAt: new Date().toISOString(),
     };
+    await redis!.set(dealKey(dealId), updated);
+    return updated;
+  }
+
+  async acceptBid(dealId: string, bidId: string): Promise<Deal | undefined> {
+    await this.ensureSeeded();
+    const deal = await this.get(dealId);
+    if (!deal) return undefined;
+    const updated = applyBidAcceptance(deal, bidId);
+    await redis!.set(dealKey(dealId), updated);
+    return updated;
+  }
+
+  async addUnderwritingQuestion(dealId: string, question: UnderwritingOpenQuestion): Promise<Deal | undefined> {
+    await this.ensureSeeded();
+    const deal = await this.get(dealId);
+    if (!deal) return undefined;
+    const updated = applyQuestionAdd(deal, question);
+    await redis!.set(dealKey(dealId), updated);
+    return updated;
+  }
+
+  async answerUnderwritingQuestion(dealId: string, questionId: string, answer: string): Promise<Deal | undefined> {
+    await this.ensureSeeded();
+    const deal = await this.get(dealId);
+    if (!deal) return undefined;
+    const updated = applyQuestionAnswer(deal, questionId, answer);
     await redis!.set(dealKey(dealId), updated);
     return updated;
   }

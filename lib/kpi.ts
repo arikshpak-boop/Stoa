@@ -67,6 +67,46 @@ export function mockRiskScore(index: number): number {
   return MOCK_RISK_SCORE_CYCLE[index % MOCK_RISK_SCORE_CYCLE.length]!;
 }
 
+/**
+ * Turns an arbitrary id (deal id, bid id, ...) into a stable small index so
+ * pages that only have a single record in hand -- not a list position --
+ * can still pull from the same deterministic mock-value cycles above.
+ */
+export function mockIndexForId(id: string): number {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = (hash * 31 + id.charCodeAt(i)) % 1000;
+  }
+  return Math.abs(hash);
+}
+
+const MOCK_CONTACT_NAMES = ["Sarah Chen", "James Whitfield", "Priya Nair", "Marcus Webb", "Elena Torres", "David Okafor"];
+const MOCK_CONTACT_PHONES = [
+  "+1 (212) 555-0147",
+  "+1 (415) 555-0192",
+  "+1 (312) 555-0138",
+  "+1 (617) 555-0164",
+  "+1 (646) 555-0119",
+  "+1 (202) 555-0173",
+];
+
+export function mockContactName(index: number): string {
+  return MOCK_CONTACT_NAMES[index % MOCK_CONTACT_NAMES.length]!;
+}
+
+export function mockContactPhone(index: number): string {
+  return MOCK_CONTACT_PHONES[index % MOCK_CONTACT_PHONES.length]!;
+}
+
+export function mockContactEmail(name: string, organizationName: string): string {
+  const [first, last] = name.toLowerCase().split(" ");
+  const domain = organizationName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "")
+    .slice(0, 20) || "example";
+  return `${first?.[0] ?? "x"}.${last ?? "contact"}@${domain}.com`;
+}
+
 export interface RecentActivityItem {
   id: string;
   title: string;

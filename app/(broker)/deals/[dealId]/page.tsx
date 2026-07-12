@@ -1,14 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, ShieldCheck } from "lucide-react";
+import { ArrowRight, DollarSign, FileText, Gauge, PhoneCall, ShieldCheck, Zap } from "lucide-react";
 import { getDealStore } from "@/lib/mock-store";
 import { formatCurrency } from "@/lib/premium";
 import { formatDate } from "@/lib/utils";
+import { mockDocumentCount, mockIndexForId, mockRiskScore } from "@/lib/kpi";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { KpiCard, KpiRow } from "@/components/dashboard/KpiCard";
 import { VerificationSplitView } from "@/components/ingestion/VerificationSplitView";
-import { BidsTable } from "@/components/marketplace/BidsTable";
+import { BidsActionsTable } from "@/components/broker/BidsActionsTable";
+import { RiskCategoryHeatmap } from "@/components/risk/RiskCategoryHeatmap";
+import { DealHealthSummary } from "@/components/risk/DealHealthSummary";
 
 export default async function DealDetailPage({ params }: { params: { dealId: string } }) {
   const deal = await getDealStore().get(params.dealId);
@@ -16,6 +20,10 @@ export default async function DealDetailPage({ params }: { params: { dealId: str
   if (!deal) {
     notFound();
   }
+
+  const mockIndex = mockIndexForId(deal.id);
+  const activeBidCount = deal.bids.filter((bid) => bid.bidStatus === "Pending").length;
+  const pendingQuestionCount = (deal.underwritingQuestions ?? []).filter((q) => q.answer === null).length;
 
   return (
     <div className="mx-auto max-w-6xl px-8 py-10">
@@ -29,12 +37,38 @@ export default async function DealDetailPage({ params }: { params: { dealId: str
             {deal.target.jurisdiction} · {deal.target.sector} · {formatCurrency(deal.financials.enterpriseValue, deal.financials.currency)} EV
           </p>
         </div>
-        <Button asChild>
-          <Link href={`/deals/${deal.id}/risk`}>
-            View Risk &amp; Exclusions Report
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" asChild>
+            <Link href={`/deals/${deal.id}/underwriting-call`}>
+              <PhoneCall className="mr-2 h-4 w-4" aria-hidden="true" />
+              Underwriting Call
+              {pendingQuestionCount > 0 && (
+                <span className="ml-2 rounded-full bg-warning/15 px-2 py-0.5 text-xs font-semibold text-warning">
+                  {pendingQuestionCount}
+                </span>
+              )}
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href={`/deals/${deal.id}/risk`}>
+              View Risk &amp; Exclusions Report
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      </div>
+
+      <div className="mt-6">
+        <KpiRow>
+          <KpiCard
+            label="Deal Value"
+            value={formatCurrency(deal.financials.enterpriseValue, deal.financials.currency)}
+            icon={DollarSign}
+          />
+          <KpiCard label="Risk Score" value={`${(mockRiskScore(mockIndex) / 10).toFixed(1)}/10`} icon={Gauge} />
+          <KpiCard label="Active Bids" value={String(activeBidCount)} sublabel={`${deal.bids.length} total`} icon={Zap} />
+          <KpiCard label="Documents" value={String(mockDocumentCount(mockIndex))} icon={FileText} />
+        </KpiRow>
       </div>
 
       <Card className="mt-6 border-accent/20 bg-accent/5">
@@ -73,16 +107,21 @@ export default async function DealDetailPage({ params }: { params: { dealId: str
         </Card>
       </div>
 
+      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <RiskCategoryHeatmap warranties={deal.warranties} />
+        <DealHealthSummary warranties={deal.warranties} />
+      </div>
+
       <div className="mt-8">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold tracking-tight text-primary">Bids Received</h2>
           <span className="text-sm text-muted-foreground">{deal.bids.length} carrier{deal.bids.length === 1 ? "" : "s"} bidding</span>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">
-          Competitive bids from carriers reviewing this submission — visible here as soon as they're placed.
+          Competitive bids from carriers reviewing this submission — accept a bid to close the deal and route the winning carrier to policy activation.
         </p>
         <div className="mt-4">
-          <BidsTable bids={deal.bids} currency={deal.financials.currency} />
+          <BidsActionsTable dealId={deal.id} bids={deal.bids} currency={deal.financials.currency} />
         </div>
       </div>
 
