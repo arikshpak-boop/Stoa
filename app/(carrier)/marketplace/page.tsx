@@ -58,7 +58,7 @@ export default async function CarrierMarketplacePage() {
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <OpportunityList deals={deals} />
+          <OpportunityList deals={deals} organizationName={organizationName} />
         </div>
 
         <div>

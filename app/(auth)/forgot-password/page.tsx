@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { EyebrowBadge } from "@/components/layout/EyebrowBadge";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -41,9 +42,13 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <Card className="w-full max-w-md">
+    <div className="w-full max-w-md">
+      <div className="mb-6 flex justify-center">
+        <EyebrowBadge>Secure Access · Institutional Trust</EyebrowBadge>
+      </div>
+      <Card>
       <CardHeader>
-        <CardTitle>Reset Your Password</CardTitle>
+        <CardTitle className="text-2xl font-extrabold tracking-tight text-primary">Reset Your Password</CardTitle>
         <CardDescription>We&apos;ll send a reset link to your work email.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -88,6 +93,7 @@ export default function ForgotPasswordPage() {
           </Link>
         </Button>
       </CardContent>
-    </Card>
+      </Card>
+    </div>
   );
 }

@@ -3,6 +3,7 @@ import { AlertTriangle, CheckCircle2, Clock, Eye, FileBarChart } from "lucide-re
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { BidDialog } from "@/components/marketplace/BidDialog";
 import { formatCurrency } from "@/lib/premium";
 import { mockDocumentCount, mockRiskScore, summarizeOpportunity } from "@/lib/kpi";
 import type { Deal } from "@/lib/types";
@@ -16,7 +17,7 @@ function StatBlock({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function OpportunityCard({ deal, index }: { deal: Deal; index: number }) {
+export function OpportunityCard({ deal, index, organizationName }: { deal: Deal; index: number; organizationName: string }) {
   const summary = summarizeOpportunity(deal);
   const riskScore = mockRiskScore(index);
 
@@ -86,9 +87,15 @@ export function OpportunityCard({ deal, index }: { deal: Deal; index: number }) 
               Risk Report
             </Link>
           </Button>
-          <Button size="sm" asChild>
-            <Link href={`/marketplace/${deal.id}#configure-bid`}>Submit Bid</Link>
-          </Button>
+          <BidDialog
+            dealId={deal.id}
+            dealName={deal.target.companyName}
+            enterpriseValue={deal.financials.enterpriseValue}
+            currency={deal.financials.currency}
+            carrierName={organizationName}
+            suggestedRateOnLinePercent={deal.ddQuality.recommendedRateOnLinePercent ?? undefined}
+            trigger={<Button size="sm">Submit Bid</Button>}
+          />
         </div>
       </CardContent>
     </Card>

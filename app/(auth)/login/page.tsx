@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { EyebrowBadge } from "@/components/layout/EyebrowBadge";
 import { roleHomePath, type Session } from "@/lib/session";
 
 const DEMO_ACCOUNTS = [
@@ -61,9 +62,13 @@ function LoginForm() {
   }
 
   return (
-    <Card className="w-full max-w-md">
+    <div className="w-full max-w-md">
+      <div className="mb-6 flex justify-center">
+        <EyebrowBadge>Secure Access · Institutional Trust</EyebrowBadge>
+      </div>
+      <Card>
       <CardHeader>
-        <CardTitle>Sign In</CardTitle>
+        <CardTitle className="text-2xl font-extrabold tracking-tight text-primary">Sign In</CardTitle>
         <CardDescription>Access your Broker or Carrier workspace.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -142,6 +147,7 @@ function LoginForm() {
           </Link>
         </p>
       </CardContent>
-    </Card>
+      </Card>
+    </div>
   );
 }
