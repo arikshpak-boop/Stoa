@@ -3,6 +3,7 @@ import { computeSnapshotHash } from "./hash";
 import { calculateLimitPercentOfEv, calculatePremium } from "./premium";
 import { computeWarrantyRiskProfile, generateExclusionReport } from "./risk-engine";
 import { assessDataRoomQuality } from "./dd-quality";
+import { classifyDocument, isIncludedInAnalysis } from "./document-classification";
 import { redis, isRedisConfigured } from "./redis";
 import type {
   Bid,
@@ -11,12 +12,33 @@ import type {
   DealLegal,
   DealTarget,
   DealTimeline,
+  DocumentClassification,
   ExtractedField,
   Sector,
   UnderwritingOpenQuestion,
   VdrDocument,
   WarrantyIdentifier,
 } from "./types";
+
+/**
+ * Classifies and stamps a freshly-uploaded document. Shared by initial
+ * submission (buildDeal) and later VDR additions (addDocuments) so every
+ * entry point into the data room runs through the same P0-01 gate.
+ */
+export function createVdrDocument(input: { fileName: string; fileType: VdrDocument["fileType"]; sizeBytes: number }): VdrDocument {
+  const { classification, confidence } = classifyDocument(input);
+  return {
+    id: randomUUID(),
+    fileName: input.fileName,
+    fileType: input.fileType,
+    sizeBytes: input.sizeBytes,
+    uploadedAt: new Date().toISOString(),
+    status: "Parsed",
+    classification,
+    classificationConfidence: confidence,
+    includedInAnalysis: isIncludedInAnalysis(classification),
+  };
+}
 
 interface SeedSpec {
   organizationName: string;
@@ -81,18 +103,12 @@ function buildDeal(spec: SeedSpec): Deal {
   const now = new Date().toISOString();
   const confidence = spec.fieldConfidence ?? DEFAULT_SEED_CONFIDENCE;
 
-  const documents: VdrDocument[] = spec.documents.map((doc) => ({
-    id: randomUUID(),
-    fileName: doc.fileName,
-    fileType: doc.fileType,
-    sizeBytes: doc.sizeBytes,
-    uploadedAt: now,
-    status: "Parsed",
-  }));
+  const documents: VdrDocument[] = spec.documents.map((doc) => createVdrDocument(doc));
+  const includedDocuments = documents.filter((doc) => doc.includedInAnalysis);
 
   const warranties = computeWarrantyRiskProfile(dealId, {
     sector: spec.target.sector,
-    documentCount: documents.length,
+    documentCount: includedDocuments.length,
     missingDisclosuresByWarranty: spec.missingDisclosuresByWarranty,
   });
 
@@ -103,7 +119,7 @@ function buildDeal(spec: SeedSpec): Deal {
   const averageExtractionConfidence = confidenceValues.reduce((sum, value) => sum + value, 0) / confidenceValues.length;
 
   const ddQuality = assessDataRoomQuality({
-    documentCount: documents.length,
+    documentCount: includedDocuments.length,
     missingDisclosureCount,
     averageExtractionConfidence,
   });
@@ -153,16 +169,16 @@ function buildDeal(spec: SeedSpec): Deal {
     timeline: spec.timeline,
     documents,
     extractedFields: {
-      companyName: field(spec.target.companyName, confidence.companyName, documents[0]?.fileName ?? "SPA_Draft.pdf", 1),
-      jurisdiction: field(spec.target.jurisdiction, confidence.jurisdiction, documents[0]?.fileName ?? "SPA_Draft.pdf", 1),
-      sector: field(spec.target.sector, confidence.sector, documents[0]?.fileName ?? "SPA_Draft.pdf", 2),
-      enterpriseValue: field(spec.financials.enterpriseValue, confidence.enterpriseValue, documents[0]?.fileName ?? "SPA_Draft.pdf", 4),
-      targetDebt: field(spec.financials.targetDebt, confidence.targetDebt, documents[1]?.fileName ?? "Financial_Model.xlsx", 1),
-      targetCash: field(spec.financials.targetCash, confidence.targetCash, documents[1]?.fileName ?? "Financial_Model.xlsx", 1),
-      governingLaw: field(spec.legal.governingLaw, confidence.governingLaw, documents[0]?.fileName ?? "SPA_Draft.pdf", 42),
-      disputeResolutionVenue: field(spec.legal.disputeResolutionVenue, confidence.disputeResolutionVenue, documents[0]?.fileName ?? "SPA_Draft.pdf", 42),
-      signingDate: field(spec.timeline.signingDate, confidence.signingDate, documents[0]?.fileName ?? "SPA_Draft.pdf", 1),
-      scheduledClosingDate: field(spec.timeline.scheduledClosingDate, confidence.scheduledClosingDate, documents[0]?.fileName ?? "SPA_Draft.pdf", 1),
+      companyName: field(spec.target.companyName, confidence.companyName, includedDocuments[0]?.fileName ?? "Submission package", 1),
+      jurisdiction: field(spec.target.jurisdiction, confidence.jurisdiction, includedDocuments[0]?.fileName ?? "Submission package", 1),
+      sector: field(spec.target.sector, confidence.sector, includedDocuments[0]?.fileName ?? "Submission package", 2),
+      enterpriseValue: field(spec.financials.enterpriseValue, confidence.enterpriseValue, includedDocuments[0]?.fileName ?? "Submission package", 4),
+      targetDebt: field(spec.financials.targetDebt, confidence.targetDebt, includedDocuments[1]?.fileName ?? includedDocuments[0]?.fileName ?? "Submission package", 1),
+      targetCash: field(spec.financials.targetCash, confidence.targetCash, includedDocuments[1]?.fileName ?? includedDocuments[0]?.fileName ?? "Submission package", 1),
+      governingLaw: field(spec.legal.governingLaw, confidence.governingLaw, includedDocuments[0]?.fileName ?? "Submission package", 42),
+      disputeResolutionVenue: field(spec.legal.disputeResolutionVenue, confidence.disputeResolutionVenue, includedDocuments[0]?.fileName ?? "Submission package", 42),
+      signingDate: field(spec.timeline.signingDate, confidence.signingDate, includedDocuments[0]?.fileName ?? "Submission package", 1),
+      scheduledClosingDate: field(spec.timeline.scheduledClosingDate, confidence.scheduledClosingDate, includedDocuments[0]?.fileName ?? "Submission package", 1),
     },
     warranties,
     exclusions,
@@ -301,6 +317,12 @@ interface DealStore {
   answerUnderwritingQuestion(dealId: string, questionId: string, answer: string): Promise<Deal | undefined>;
   updateDealStatus(dealId: string, status: Deal["status"]): Promise<Deal | undefined>;
   addDocuments(dealId: string, documents: VdrDocument[]): Promise<Deal | undefined>;
+  overrideDocumentClassification(
+    dealId: string,
+    documentId: string,
+    classification: DocumentClassification,
+    overriddenBy: string,
+  ): Promise<Deal | undefined>;
 }
 
 function applyStatusUpdate(deal: Deal, status: Deal["status"]): Deal {
@@ -309,6 +331,34 @@ function applyStatusUpdate(deal: Deal, status: Deal["status"]): Deal {
 
 function applyDocumentAdd(deal: Deal, documents: VdrDocument[]): Deal {
   return { ...deal, documents: [...deal.documents, ...documents], updatedAt: new Date().toISOString() };
+}
+
+function applyClassificationOverride(
+  deal: Deal,
+  documentId: string,
+  classification: DocumentClassification,
+  overriddenBy: string,
+): Deal | undefined {
+  if (!deal.documents.some((doc) => doc.id === documentId)) return undefined;
+  const now = new Date().toISOString();
+  return {
+    ...deal,
+    documents: deal.documents.map((doc) => {
+      if (doc.id !== documentId) return doc;
+      return {
+        ...doc,
+        classification,
+        includedInAnalysis: isIncludedInAnalysis(classification),
+        classificationOverride: {
+          classification,
+          previousClassification: doc.classification,
+          overriddenBy,
+          overriddenAt: now,
+        },
+      };
+    }),
+    updatedAt: now,
+  };
 }
 
 function applyQuestionAdd(deal: Deal, question: UnderwritingOpenQuestion): Deal {
@@ -430,6 +480,20 @@ class InMemoryDealStore implements DealStore {
     const deal = this.deals.get(dealId);
     if (!deal) return undefined;
     const updated = applyDocumentAdd(deal, documents);
+    this.deals.set(dealId, updated);
+    return updated;
+  }
+
+  async overrideDocumentClassification(
+    dealId: string,
+    documentId: string,
+    classification: DocumentClassification,
+    overriddenBy: string,
+  ): Promise<Deal | undefined> {
+    const deal = this.deals.get(dealId);
+    if (!deal) return undefined;
+    const updated = applyClassificationOverride(deal, documentId, classification, overriddenBy);
+    if (!updated) return undefined;
     this.deals.set(dealId, updated);
     return updated;
   }
@@ -560,6 +624,21 @@ class RedisDealStore implements DealStore {
     const deal = await this.get(dealId);
     if (!deal) return undefined;
     const updated = applyDocumentAdd(deal, documents);
+    await redis!.set(dealKey(dealId), updated);
+    return updated;
+  }
+
+  async overrideDocumentClassification(
+    dealId: string,
+    documentId: string,
+    classification: DocumentClassification,
+    overriddenBy: string,
+  ): Promise<Deal | undefined> {
+    await this.ensureSeeded();
+    const deal = await this.get(dealId);
+    if (!deal) return undefined;
+    const updated = applyClassificationOverride(deal, documentId, classification, overriddenBy);
+    if (!updated) return undefined;
     await redis!.set(dealKey(dealId), updated);
     return updated;
   }

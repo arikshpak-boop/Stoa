@@ -91,8 +91,9 @@ function isFlagged(warranty: DealWarranty | undefined): boolean {
 }
 
 function documentSource(deal: Deal, offset: number): string {
-  if (deal.documents.length === 0) return "Submission package";
-  const doc = deal.documents[offset % deal.documents.length]!;
+  const citable = deal.documents.filter((doc) => doc.includedInAnalysis);
+  if (citable.length === 0) return "Submission package";
+  const doc = citable[offset % citable.length]!;
   return doc.fileName;
 }
 

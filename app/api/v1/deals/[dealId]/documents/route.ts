@@ -1,6 +1,5 @@
-import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { getDealStore } from "@/lib/mock-store";
+import { createVdrDocument, getDealStore } from "@/lib/mock-store";
 import type { Deal, VdrDocument } from "@/lib/types";
 
 interface RouteParams {
@@ -29,15 +28,9 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     return NextResponse.json({ error: "Each document needs fileName, fileType (pdf/xlsx/docx), and sizeBytes." }, { status: 400 });
   }
 
-  const now = new Date().toISOString();
-  const documents: VdrDocument[] = body.documents.map((doc) => ({
-    id: randomUUID(),
-    fileName: doc.fileName!.trim(),
-    fileType: doc.fileType!,
-    sizeBytes: doc.sizeBytes!,
-    uploadedAt: now,
-    status: "Parsed",
-  }));
+  const documents: VdrDocument[] = body.documents.map((doc) =>
+    createVdrDocument({ fileName: doc.fileName!.trim(), fileType: doc.fileType!, sizeBytes: doc.sizeBytes! }),
+  );
 
   const updated = await getDealStore().addDocuments(params.dealId, documents);
 

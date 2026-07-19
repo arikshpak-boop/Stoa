@@ -12,6 +12,14 @@ CREATE TYPE risk_level AS ENUM ('Low', 'Medium', 'High');
 CREATE TYPE flag_status AS ENUM ('Clear', 'Flagged', 'Under Review');
 CREATE TYPE document_status AS ENUM ('Uploaded', 'Parsing', 'Parsed', 'Failed');
 CREATE TYPE retention_trigger AS ENUM ('Tipping', 'Erosion');
+CREATE TYPE document_classification AS ENUM (
+    'spa-transaction-agreement',
+    'financial-statement',
+    'disclosure-schedule',
+    'org-document',
+    'correspondence',
+    'unclassifiable-irrelevant'
+);
 
 CREATE TABLE organizations (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -57,17 +65,38 @@ CREATE INDEX idx_deals_status ON deals(status);
 CREATE INDEX idx_deals_sector ON deals(sector);
 
 CREATE TABLE deal_documents (
-    id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    deal_id             UUID NOT NULL REFERENCES deals(id) ON DELETE CASCADE,
-    file_name           TEXT NOT NULL,
-    file_type           TEXT NOT NULL CHECK (file_type IN ('pdf', 'xlsx', 'docx')),
-    size_bytes          BIGINT NOT NULL,
-    storage_uri         TEXT NOT NULL,
-    status              document_status NOT NULL DEFAULT 'Uploaded',
-    uploaded_at         TIMESTAMPTZ NOT NULL DEFAULT now()
+    id                          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    deal_id                     UUID NOT NULL REFERENCES deals(id) ON DELETE CASCADE,
+    file_name                   TEXT NOT NULL,
+    file_type                   TEXT NOT NULL CHECK (file_type IN ('pdf', 'xlsx', 'docx')),
+    size_bytes                  BIGINT NOT NULL,
+    storage_uri                 TEXT NOT NULL,
+    status                      document_status NOT NULL DEFAULT 'Uploaded',
+    classification              document_classification NOT NULL DEFAULT 'unclassifiable-irrelevant',
+    classification_confidence   NUMERIC(4, 3) NOT NULL DEFAULT 0 CHECK (classification_confidence >= 0 AND classification_confidence <= 1),
+    included_in_analysis        BOOLEAN NOT NULL DEFAULT false,
+    uploaded_at                 TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE INDEX idx_deal_documents_deal_id ON deal_documents(deal_id);
+CREATE INDEX idx_deal_documents_included_in_analysis ON deal_documents(included_in_analysis);
+
+-- Append-only audit ledger for P0-01: every time a deal maker overrides the
+-- ingestion classifier's verdict on a document, a row is inserted here
+-- (never updated/deleted) so "who reclassified this file, and when" stays
+-- reconstructable for a future underwriter/regulator review.
+CREATE TABLE deal_document_classification_overrides (
+    id                          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id                 UUID NOT NULL REFERENCES deal_documents(id) ON DELETE CASCADE,
+    deal_id                     UUID NOT NULL REFERENCES deals(id) ON DELETE CASCADE,
+    previous_classification     document_classification NOT NULL,
+    new_classification          document_classification NOT NULL,
+    overridden_by_user_id       UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+    overridden_at               TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_deal_document_classification_overrides_document_id ON deal_document_classification_overrides(document_id);
+CREATE INDEX idx_deal_document_classification_overrides_deal_id ON deal_document_classification_overrides(deal_id);
 
 CREATE TABLE deal_extracted_fields (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -166,6 +195,7 @@ CREATE INDEX idx_deal_snapshots_deal_id ON deal_snapshots(deal_id);
 
 ALTER TABLE deals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE deal_documents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE deal_document_classification_overrides ENABLE ROW LEVEL SECURITY;
 ALTER TABLE deal_extracted_fields ENABLE ROW LEVEL SECURITY;
 ALTER TABLE deal_warranties ENABLE ROW LEVEL SECURITY;
 ALTER TABLE deal_exclusions ENABLE ROW LEVEL SECURITY;
@@ -188,6 +218,19 @@ CREATE POLICY deals_carrier_marketplace_visibility ON deals
     );
 
 CREATE POLICY deal_documents_isolation ON deal_documents
+    FOR ALL
+    USING (
+        deal_id IN (
+            SELECT id FROM deals
+            WHERE organization_id = current_setting('app.current_organization_id', true)::UUID
+               OR (
+                    status IN ('Submitted', 'Analyzed', 'Closed')
+                    AND current_setting('app.current_organization_type', true) = 'Carrier'
+               )
+        )
+    );
+
+CREATE POLICY deal_document_classification_overrides_isolation ON deal_document_classification_overrides
     FOR ALL
     USING (
         deal_id IN (

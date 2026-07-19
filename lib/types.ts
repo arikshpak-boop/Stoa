@@ -98,6 +98,21 @@ export interface ExtractedField<T> {
   sourceCoordinates: { x: number; y: number; width: number; height: number };
 }
 
+export type DocumentClassification =
+  | "spa-transaction-agreement"
+  | "financial-statement"
+  | "disclosure-schedule"
+  | "org-document"
+  | "correspondence"
+  | "unclassifiable-irrelevant";
+
+export interface DocumentClassificationOverride {
+  classification: DocumentClassification;
+  previousClassification: DocumentClassification;
+  overriddenBy: string;
+  overriddenAt: string;
+}
+
 export interface VdrDocument {
   id: string;
   fileName: string;
@@ -105,6 +120,10 @@ export interface VdrDocument {
   sizeBytes: number;
   uploadedAt: string;
   status: "Uploaded" | "Parsing" | "Parsed" | "Failed";
+  classification: DocumentClassification;
+  classificationConfidence: number;
+  includedInAnalysis: boolean;
+  classificationOverride?: DocumentClassificationOverride;
 }
 
 export interface DealWarranty {
