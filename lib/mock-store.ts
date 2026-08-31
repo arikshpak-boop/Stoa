@@ -63,6 +63,7 @@ interface SeedSpec {
     expenseCap: number;
     policyExpiration: string;
     bidStatus: Bid["bidStatus"];
+    requestedExclusions?: WarrantyIdentifier[];
   }>;
   fieldConfidence?: {
     companyName: number;
@@ -159,6 +160,7 @@ function buildDeal(spec: SeedSpec): Deal {
       policyExpiration: bidSpec.policyExpiration,
       bidStatus: bidSpec.bidStatus,
       submittedAt: now,
+      requestedExclusions: bidSpec.requestedExclusions ?? [],
     };
   });
 
@@ -229,8 +231,8 @@ const SEED_SPECS: SeedSpec[] = [
       "CONTR-01": ["Top-10 customer contract change-of-control clauses"],
     },
     bids: [
-      { carrierName: "Euclid Transactional", limitAmount: 27_750_000, retentionAmount: 925_000, retentionTrigger: "Tipping", rateOnLinePercent: 2.8, underwritingFees: 45_000, expenseCap: 75_000, policyExpiration: "2033-08-15", bidStatus: "Pending" },
-      { carrierName: "Berkshire Hathaway (BHSI)", limitAmount: 18_500_000, retentionAmount: 740_000, retentionTrigger: "Erosion", rateOnLinePercent: 3.1, underwritingFees: 38_000, expenseCap: 60_000, policyExpiration: "2033-08-15", bidStatus: "Pending" },
+      { carrierName: "Euclid Transactional", limitAmount: 27_750_000, retentionAmount: 925_000, retentionTrigger: "Tipping", rateOnLinePercent: 2.8, underwritingFees: 45_000, expenseCap: 75_000, policyExpiration: "2033-08-15", bidStatus: "Pending", requestedExclusions: ["TAX-01", "ENV-01"] },
+      { carrierName: "Berkshire Hathaway (BHSI)", limitAmount: 18_500_000, retentionAmount: 740_000, retentionTrigger: "Erosion", rateOnLinePercent: 3.1, underwritingFees: 38_000, expenseCap: 60_000, policyExpiration: "2033-08-15", bidStatus: "Pending", requestedExclusions: ["ENV-01", "EMPL-01", "CONTR-01"] },
     ],
     underwritingQuestions: [
       {
@@ -297,8 +299,8 @@ const SEED_SPECS: SeedSpec[] = [
     ],
     missingDisclosuresByWarranty: {},
     bids: [
-      { carrierName: "Euclid Transactional", limitAmount: 91_500_000, retentionAmount: 3_050_000, retentionTrigger: "Tipping", rateOnLinePercent: 2.4, underwritingFees: 120_000, expenseCap: 180_000, policyExpiration: "2033-06-30", bidStatus: "Accepted" },
-      { carrierName: "Berkshire Hathaway (BHSI)", limitAmount: 61_000_000, retentionAmount: 2_400_000, retentionTrigger: "Erosion", rateOnLinePercent: 2.7, underwritingFees: 98_000, expenseCap: 150_000, policyExpiration: "2033-06-30", bidStatus: "Declined" },
+      { carrierName: "Euclid Transactional", limitAmount: 91_500_000, retentionAmount: 3_050_000, retentionTrigger: "Tipping", rateOnLinePercent: 2.4, underwritingFees: 120_000, expenseCap: 180_000, policyExpiration: "2033-06-30", bidStatus: "Accepted", requestedExclusions: ["IP-01"] },
+      { carrierName: "Berkshire Hathaway (BHSI)", limitAmount: 61_000_000, retentionAmount: 2_400_000, retentionTrigger: "Erosion", rateOnLinePercent: 2.7, underwritingFees: 98_000, expenseCap: 150_000, policyExpiration: "2033-06-30", bidStatus: "Declined", requestedExclusions: ["IP-01", "TAX-01", "FIN-01"] },
     ],
   },
   {
@@ -327,6 +329,7 @@ interface DealStore {
   addUnderwritingQuestion(dealId: string, question: UnderwritingOpenQuestion): Promise<Deal | undefined>;
   answerUnderwritingQuestion(dealId: string, questionId: string, answer: string): Promise<Deal | undefined>;
   updateDealStatus(dealId: string, status: Deal["status"]): Promise<Deal | undefined>;
+  recordBidRequest(dealId: string): Promise<Deal | undefined>;
   addDocuments(dealId: string, documents: VdrDocument[]): Promise<Deal | undefined>;
   overrideDocumentClassification(
     dealId: string,
@@ -487,6 +490,15 @@ class InMemoryDealStore implements DealStore {
     return updated;
   }
 
+  async recordBidRequest(dealId: string): Promise<Deal | undefined> {
+    const deal = this.deals.get(dealId);
+    if (!deal) return undefined;
+    const now = new Date().toISOString();
+    const updated: Deal = { ...deal, lastBidRequestAt: now, updatedAt: now };
+    this.deals.set(dealId, updated);
+    return updated;
+  }
+
   async addDocuments(dealId: string, documents: VdrDocument[]): Promise<Deal | undefined> {
     const deal = this.deals.get(dealId);
     if (!deal) return undefined;
@@ -626,6 +638,16 @@ class RedisDealStore implements DealStore {
     const deal = await this.get(dealId);
     if (!deal) return undefined;
     const updated = applyStatusUpdate(deal, status);
+    await redis!.set(dealKey(dealId), updated);
+    return updated;
+  }
+
+  async recordBidRequest(dealId: string): Promise<Deal | undefined> {
+    await this.ensureSeeded();
+    const deal = await this.get(dealId);
+    if (!deal) return undefined;
+    const now = new Date().toISOString();
+    const updated: Deal = { ...deal, lastBidRequestAt: now, updatedAt: now };
     await redis!.set(dealKey(dealId), updated);
     return updated;
   }

@@ -157,7 +157,12 @@ export default async function DealDetailPage({ params }: { params: { dealId: str
       <div className="mt-8">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold tracking-tight text-primary">Bids Received</h2>
-          <span className="text-sm text-muted-foreground">{deal.bids.length} carrier{deal.bids.length === 1 ? "" : "s"} bidding</span>
+          <Link
+            href={`/deals/${deal.id}/bids`}
+            className="text-sm font-semibold text-accent transition-colors hover:underline"
+          >
+            Compare all {deal.bids.length} bid{deal.bids.length === 1 ? "" : "s"} →
+          </Link>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">
           Competitive bids from carriers reviewing this submission — accept a bid to close the deal and route the winning carrier to policy activation.

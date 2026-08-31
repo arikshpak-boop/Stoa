@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getDealStore } from "@/lib/mock-store";
 import { calculateLimitPercentOfEv, calculatePremium } from "@/lib/premium";
-import type { Bid } from "@/lib/types";
+import { WARRANTY_DEFINITIONS, type Bid, type WarrantyIdentifier } from "@/lib/types";
 
 interface RouteParams {
   params: { dealId: string };
@@ -17,7 +17,11 @@ interface BidRequestBody {
   underwritingFees: number;
   expenseCap: number;
   policyExpiration: string;
+  requestedExclusions?: WarrantyIdentifier[];
+  carrierContactEmail?: string;
 }
+
+const VALID_WARRANTY_IDS = new Set<string>(WARRANTY_DEFINITIONS.map((definition) => definition.identifier));
 
 export async function GET(_request: NextRequest, { params }: RouteParams): Promise<NextResponse<{ bids: Bid[] } | { error: string }>> {
   const store = getDealStore();
@@ -53,6 +57,12 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     return NextResponse.json({ error: "Missing or invalid bid parameters." }, { status: 400 });
   }
 
+  const requestedExclusions = body.requestedExclusions ?? [];
+
+  if (!Array.isArray(requestedExclusions) || requestedExclusions.some((id) => !VALID_WARRANTY_IDS.has(id))) {
+    return NextResponse.json({ error: "requestedExclusions must reference known warranties." }, { status: 400 });
+  }
+
   const calculation = calculatePremium({
     limitAmount: body.limitAmount,
     rateOnLinePercent: body.rateOnLinePercent,
@@ -75,6 +85,8 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     policyExpiration: body.policyExpiration,
     bidStatus: "Pending",
     submittedAt: new Date().toISOString(),
+    requestedExclusions,
+    carrierContactEmail: body.carrierContactEmail,
   };
 
   const updatedDeal = await store.addBid(deal.id, bid);

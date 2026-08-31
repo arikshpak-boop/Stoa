@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PhoneCall, Upload } from "lucide-react";
+import { Gavel, PhoneCall, Upload } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { mockDaysActive, mockDocumentCount, mockRiskScore } from "@/lib/kpi";
 import { DEAL_STATUS_DISPLAY } from "@/lib/deal-status-display";
 import { RequestBidsButton } from "@/components/broker/RequestBidsButton";
+import { AskForMoreBidsButton } from "@/components/broker/AskForMoreBidsButton";
 import type { Deal } from "@/lib/types";
 
 function riskScoreColor(score: number): string {
@@ -79,7 +80,21 @@ export function DealPortfolioCard({ deal, index }: { deal: Deal; index: number }
               )}
             </Link>
           </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/deals/${deal.id}/bids`}>
+              <Gavel className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+              View Bids
+              {deal.bids.length > 0 && (
+                <span className="ml-1.5 rounded-full bg-accent-tint px-1.5 text-xs font-semibold text-accent">
+                  {deal.bids.length}
+                </span>
+              )}
+            </Link>
+          </Button>
           {deal.status === "Draft" && <RequestBidsButton dealId={deal.id} />}
+          {(deal.status === "Submitted" || deal.status === "Analyzed") && (
+            <AskForMoreBidsButton dealId={deal.id} />
+          )}
         </div>
       </CardContent>
     </Card>

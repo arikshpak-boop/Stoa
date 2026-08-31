@@ -163,6 +163,14 @@ export interface Bid {
   policyExpiration: string;
   bidStatus: BidStatus;
   submittedAt: string;
+  /**
+   * Warranties the carrier requires excluded as a condition of this quote.
+   * Optional because bids placed before carrier-specified exclusions existed
+   * won't carry it. Resolve against the deal's exclusion report for wording.
+   */
+  requestedExclusions?: WarrantyIdentifier[];
+  /** Underwriting contact, when the carrier has supplied one. */
+  carrierContactEmail?: string;
 }
 
 /**
@@ -216,6 +224,8 @@ export interface Deal {
   underwritingQuestions?: UnderwritingOpenQuestion[];
   /** Optional because deals submitted before carrier distribution won't carry it. */
   distribution?: DealDistribution;
+  /** When the deal maker last re-solicited the panel for bids. */
+  lastBidRequestAt?: string;
   ddQuality: DDQualityAssessment;
   version: number;
   snapshotHash: string;
