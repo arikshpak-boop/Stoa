@@ -183,7 +183,7 @@ export default function LandingPage() {
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <Link href="/contact">Explore Marketplace</Link>
+                  <Link href="/contact">Explore Ecosystem</Link>
                 </Button>
               </div>
               <p className="mt-7 flex items-center gap-2 text-sm text-muted-foreground">
@@ -451,7 +451,7 @@ export default function LandingPage() {
                 </Link>
               </Button>
               <Button size="lg" variant="neutral" asChild>
-                <Link href="/contact">Explore Marketplace</Link>
+                <Link href="/contact">Explore Ecosystem</Link>
               </Button>
             </div>
           </div>
