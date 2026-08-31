@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { FileDropZone, type StagedFile } from "@/components/ingestion/FileDropZone";
 import { CarrierDistributionSelector } from "@/components/broker/CarrierDistributionSelector";
+import { PlacementChecklist } from "@/components/ingestion/PlacementChecklist";
 import { resolveCarrierNames } from "@/lib/carriers";
 import { formatCurrency } from "@/lib/premium";
 import { truncateHash } from "@/lib/utils";
@@ -131,7 +132,7 @@ export default function NewDealPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-8 py-10">
+    <div className="mx-auto max-w-5xl px-8 py-10">
       <h1 className="text-2xl font-semibold tracking-tight text-primary">New Deal Submission</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Progressive disclosure keeps this under the 15-minute SLA — provide the target details, drop the data room
@@ -204,7 +205,12 @@ export default function NewDealPage() {
             </div>
           )}
 
-          {stepIndex === 1 && <FileDropZone files={files} onFilesChange={setFiles} />}
+          {stepIndex === 1 && (
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
+              <FileDropZone files={files} onFilesChange={setFiles} />
+              <PlacementChecklist fileNames={files.map((file) => file.fileName)} />
+            </div>
+          )}
 
           {stepIndex === 2 && (
             <CarrierDistributionSelector selectedIds={carrierIds} onChange={setCarrierIds} />
