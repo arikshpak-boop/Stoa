@@ -2,7 +2,10 @@ import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getDealStore } from "@/lib/mock-store";
 import { calculateLimitPercentOfEv, calculatePremium } from "@/lib/premium";
-import { WARRANTY_DEFINITIONS, type Bid, type WarrantyIdentifier } from "@/lib/types";
+import { WARRANTY_DEFINITIONS, type Bid, type CustomExclusion, type WarrantyIdentifier } from "@/lib/types";
+import { isLibraryExclusionId } from "@/lib/exclusion-library";
+import { canCarrierSeeDeal } from "@/lib/carriers";
+import { getServerSession } from "@/lib/get-session";
 
 interface RouteParams {
   params: { dealId: string };
@@ -18,8 +21,14 @@ interface BidRequestBody {
   expenseCap: number;
   policyExpiration: string;
   requestedExclusions?: WarrantyIdentifier[];
+  libraryExclusions?: string[];
+  customExclusions?: CustomExclusion[];
   carrierContactEmail?: string;
 }
+
+const MAX_CUSTOM_EXCLUSIONS = 25;
+const MAX_CUSTOM_TITLE = 160;
+const MAX_CUSTOM_WORDING = 4000;
 
 const VALID_WARRANTY_IDS = new Set<string>(WARRANTY_DEFINITIONS.map((definition) => definition.identifier));
 
@@ -42,6 +51,17 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     return NextResponse.json({ error: `Deal ${params.dealId} not found.` }, { status: 404 });
   }
 
+  const session = getServerSession();
+
+  // A carrier that cannot see the deal cannot bid on it. Without this the
+  // distribution list would be a UI convention rather than a rule.
+  if (
+    session?.role === "Carrier" &&
+    !canCarrierSeeDeal(deal.distribution?.carrierNames, session.organizationName)
+  ) {
+    return NextResponse.json({ error: "This deal was not distributed to your organisation." }, { status: 403 });
+  }
+
   const body = (await request.json()) as Partial<BidRequestBody>;
 
   if (
@@ -61,6 +81,38 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
 
   if (!Array.isArray(requestedExclusions) || requestedExclusions.some((id) => !VALID_WARRANTY_IDS.has(id))) {
     return NextResponse.json({ error: "requestedExclusions must reference known warranties." }, { status: 400 });
+  }
+
+  const libraryExclusions = body.libraryExclusions ?? [];
+
+  if (!Array.isArray(libraryExclusions) || libraryExclusions.some((id) => typeof id !== "string" || !isLibraryExclusionId(id))) {
+    return NextResponse.json({ error: "libraryExclusions must reference the standard exclusion library." }, { status: 400 });
+  }
+
+  const customExclusions = body.customExclusions ?? [];
+
+  if (!Array.isArray(customExclusions) || customExclusions.length > MAX_CUSTOM_EXCLUSIONS) {
+    return NextResponse.json(
+      { error: `customExclusions must be a list of at most ${MAX_CUSTOM_EXCLUSIONS} entries.` },
+      { status: 400 },
+    );
+  }
+
+  const malformedCustom = customExclusions.some(
+    (exclusion) =>
+      typeof exclusion?.title !== "string" ||
+      typeof exclusion?.wording !== "string" ||
+      exclusion.title.trim().length === 0 ||
+      exclusion.wording.trim().length === 0 ||
+      exclusion.title.length > MAX_CUSTOM_TITLE ||
+      exclusion.wording.length > MAX_CUSTOM_WORDING,
+  );
+
+  if (malformedCustom) {
+    return NextResponse.json(
+      { error: "Each custom exclusion needs a title and policy wording within the length limits." },
+      { status: 400 },
+    );
   }
 
   const calculation = calculatePremium({
@@ -86,6 +138,11 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     bidStatus: "Pending",
     submittedAt: new Date().toISOString(),
     requestedExclusions,
+    libraryExclusions,
+    customExclusions: customExclusions.map((exclusion) => ({
+      title: exclusion.title.trim(),
+      wording: exclusion.wording.trim(),
+    })),
     carrierContactEmail: body.carrierContactEmail,
   };
 

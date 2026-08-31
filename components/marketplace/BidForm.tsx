@@ -2,17 +2,21 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ExclusionPicker } from "@/components/marketplace/ExclusionPicker";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { FormattedNumberInput } from "@/components/ui/formatted-number-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { calculateLimitPercentOfEv, calculatePremium, formatCurrency } from "@/lib/premium";
+import type { CustomExclusion, ExclusionClause, WarrantyIdentifier } from "@/lib/types";
 
 interface BidFormProps {
   dealId: string;
+  /** The deal's own exclusion report, offered as the recommended tier. */
+  recommendedExclusions?: ExclusionClause[];
   enterpriseValue: number;
   currency: string;
   carrierName: string;
@@ -25,6 +29,7 @@ interface BidFormProps {
 
 export function BidForm({
   dealId,
+  recommendedExclusions = [],
   enterpriseValue,
   currency,
   carrierName: initialCarrierName,
@@ -45,6 +50,9 @@ export function BidForm({
     date.setFullYear(date.getFullYear() + 7);
     return date.toISOString().slice(0, 10);
   });
+  const [selectedRecommended, setSelectedRecommended] = useState<WarrantyIdentifier[]>([]);
+  const [selectedLibrary, setSelectedLibrary] = useState<string[]>([]);
+  const [customExclusions, setCustomExclusions] = useState<CustomExclusion[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -73,6 +81,9 @@ export function BidForm({
           underwritingFees,
           expenseCap,
           policyExpiration,
+          requestedExclusions: selectedRecommended,
+          libraryExclusions: selectedLibrary,
+          customExclusions,
         }),
       });
 
@@ -157,6 +168,27 @@ export function BidForm({
                 type="date"
                 value={policyExpiration}
                 onChange={(e) => setPolicyExpiration(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-border p-5">
+            <p className="flex items-center gap-2 font-sans text-sm font-semibold text-primary">
+              <ShieldAlert className="h-4 w-4 text-warning" aria-hidden="true" />
+              Exclusions
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Conditions attached to this quote. The deal maker sees each one with its wording.
+            </p>
+            <div className="mt-5">
+              <ExclusionPicker
+                recommended={recommendedExclusions}
+                selectedRecommended={selectedRecommended}
+                onRecommendedChange={setSelectedRecommended}
+                selectedLibrary={selectedLibrary}
+                onLibraryChange={setSelectedLibrary}
+                customExclusions={customExclusions}
+                onCustomChange={setCustomExclusions}
               />
             </div>
           </div>

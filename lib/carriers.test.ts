@@ -57,3 +57,33 @@ describe("canCarrierSeeDeal", () => {
     expect(canCarrierSeeDeal(["AIG"], "Stoa Platform Team", { unrestricted: true })).toBe(true);
   });
 });
+
+describe("exclusion library", () => {
+  it("holds all 50 entries with unique ids and contiguous ranks", async () => {
+    const { EXCLUSION_LIBRARY } = await import("./exclusion-library");
+    expect(EXCLUSION_LIBRARY).toHaveLength(50);
+    expect(new Set(EXCLUSION_LIBRARY.map((e) => e.id)).size).toBe(50);
+    expect(EXCLUSION_LIBRARY.map((e) => e.rank).sort((a, b) => a - b)).toEqual(
+      Array.from({ length: 50 }, (_, i) => i + 1),
+    );
+  });
+
+  it("gives every entry policy wording", async () => {
+    const { EXCLUSION_LIBRARY } = await import("./exclusion-library");
+    expect(EXCLUSION_LIBRARY.every((e) => e.wording.trim().length > 0)).toBe(true);
+  });
+
+  it("resolves ids and rejects unknown ones", async () => {
+    const { isLibraryExclusionId, libraryExclusionById } = await import("./exclusion-library");
+    expect(isLibraryExclusionId("actual-knowledge")).toBe(true);
+    expect(isLibraryExclusionId("not-a-real-exclusion")).toBe(false);
+    expect(libraryExclusionById("pfas")?.name).toBe("PFAS (Forever Chemicals)");
+  });
+
+  it("groups by frequency in market-standard order", async () => {
+    const { groupedLibraryExclusions } = await import("./exclusion-library");
+    expect(groupedLibraryExclusions().map((g) => g.frequency)).toEqual([
+      "Universal", "Very High", "High", "Common", "Moderate", "Occasional", "Rare", "Bespoke",
+    ]);
+  });
+});

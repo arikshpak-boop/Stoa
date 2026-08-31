@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, PhoneCall } from "lucide-react";
 import { getDealStore } from "@/lib/mock-store";
 import { getServerSession } from "@/lib/get-session";
+import { canCarrierSeeDeal } from "@/lib/carriers";
 import { formatCurrency } from "@/lib/premium";
 import { generateUnderwritingBriefing } from "@/lib/underwriting";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +17,14 @@ export default async function CarrierUnderwritingCallPage({ params }: { params: 
   const session = getServerSession();
 
   if (!deal || !session) {
+    notFound();
+  }
+
+  // Distribution is enforced here too, not just on the marketplace list —
+  // otherwise a carrier off the list could open the deal straight by URL.
+  if (!canCarrierSeeDeal(deal.distribution?.carrierNames, session.organizationName, {
+    unrestricted: session.role === "Admin",
+  })) {
     notFound();
   }
 
@@ -45,6 +54,7 @@ export default async function CarrierUnderwritingCallPage({ params }: { params: 
           </p>
         </div>
         <BidDialog
+                recommendedExclusions={deal.exclusions}
           dealId={deal.id}
           dealName={deal.target.companyName}
           enterpriseValue={deal.financials.enterpriseValue}

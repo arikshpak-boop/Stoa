@@ -8,6 +8,7 @@ import { formatCurrency } from "@/lib/premium";
 import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { WARRANTY_DEFINITIONS, type Bid, type ExclusionClause, type WarrantyIdentifier } from "@/lib/types";
+import { libraryExclusionById } from "@/lib/exclusion-library";
 
 const BID_STATUS_VARIANT: Record<Bid["bidStatus"], "muted" | "success" | "destructive"> = {
   Pending: "muted",
@@ -18,6 +19,28 @@ const BID_STATUS_VARIANT: Record<Bid["bidStatus"], "muted" | "success" | "destru
 const WARRANTY_LABEL = new Map<WarrantyIdentifier, string>(
   WARRANTY_DEFINITIONS.map((definition) => [definition.identifier, definition.label]),
 );
+
+function totalExclusions(bid: Bid): number {
+  return (
+    (bid.requestedExclusions ?? []).length +
+    (bid.libraryExclusions ?? []).length +
+    (bid.customExclusions ?? []).length
+  );
+}
+
+function ExclusionEntry({ title, tag, wording }: { title: string; tag: string; wording: string }) {
+  return (
+    <li className="border-l-2 border-warning/40 pl-4">
+      <p className="text-sm font-semibold text-primary">
+        {title}
+        <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          {tag}
+        </span>
+      </p>
+      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{wording}</p>
+    </li>
+  );
+}
 
 interface BidComparisonViewProps {
   dealId: string;
@@ -49,6 +72,8 @@ export function BidComparisonView({ companyName, currency, bids, exclusions }: B
   }
 
   const requested = active.requestedExclusions ?? [];
+  const library = active.libraryExclusions ?? [];
+  const custom = active.customExclusions ?? [];
 
   /**
    * Composes the enquiry rather than just opening a blank draft. The carrier's
@@ -67,8 +92,12 @@ export function BidComparisonView({ companyName, currency, bids, exclusions }: B
       `  Retention:  ${formatCurrency(active.retentionAmount, currency)} (${active.retentionTrigger})`,
       `  Rate on line: ${active.rateOnLinePercent}%`,
       `  Premium:    ${formatCurrency(active.premiumTotal, currency)}`,
-      requested.length > 0
-        ? `  Exclusions requested: ${requested.map((id) => WARRANTY_LABEL.get(id) ?? id).join(", ")}`
+      totalExclusions(active) > 0
+        ? `  Exclusions requested: ${[
+            ...requested.map((id) => WARRANTY_LABEL.get(id) ?? id),
+            ...library.map((id) => libraryExclusionById(id)?.name ?? id),
+            ...custom.map((exclusion) => exclusion.title),
+          ].join(", ")}`
         : `  Exclusions requested: none`,
       ``,
       `We'd like to discuss the following:`,
@@ -104,8 +133,7 @@ export function BidComparisonView({ companyName, currency, bids, exclusions }: B
               {formatCurrency(bid.premiumTotal, currency)} premium · {bid.rateOnLinePercent}% RoL
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {(bid.requestedExclusions ?? []).length} exclusion
-              {(bid.requestedExclusions ?? []).length === 1 ? "" : "s"} requested
+              {totalExclusions(bid)} exclusion{totalExclusions(bid) === 1 ? "" : "s"} requested
             </p>
           </button>
         ))}
@@ -177,31 +205,75 @@ export function BidComparisonView({ companyName, currency, bids, exclusions }: B
             Exclusions Requested
           </p>
 
-          {requested.length === 0 ? (
+          {totalExclusions(active) === 0 ? (
             <p className="mt-4 text-sm text-muted-foreground">
-              This carrier has not asked for any warranty to be excluded.
+              This carrier has not asked for any exclusion.
             </p>
           ) : (
-            <ul className="mt-4 space-y-4">
-              {requested.map((identifier) => {
-                const clause = exclusionsByWarranty.get(identifier);
-                return (
-                  <li key={identifier} className="border-l-2 border-warning/40 pl-4">
-                    <p className="text-sm font-semibold text-primary">
-                      {clause?.title ?? WARRANTY_LABEL.get(identifier) ?? identifier}
-                      <span className="ml-2 font-mono text-xs font-normal text-muted-foreground">{identifier}</span>
-                    </p>
-                    {clause ? (
-                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{clause.draftText}</p>
-                    ) : (
-                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                        No drafted clause on the deal&apos;s exclusion report for this warranty.
-                      </p>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
+            <div className="mt-4 space-y-6">
+              {requested.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-accent">
+                    Recommended for this deal
+                  </p>
+                  <ul className="mt-3 space-y-4">
+                    {requested.map((identifier) => {
+                      const clause = exclusionsByWarranty.get(identifier);
+                      return (
+                        <ExclusionEntry
+                          key={identifier}
+                          title={clause?.title ?? WARRANTY_LABEL.get(identifier) ?? identifier}
+                          tag={identifier}
+                          wording={
+                            clause?.draftText ??
+                            "No drafted clause on the deal's exclusion report for this warranty."
+                          }
+                        />
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+
+              {library.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-accent">
+                    Standard library
+                  </p>
+                  <ul className="mt-3 space-y-4">
+                    {library.map((id) => {
+                      const entry = libraryExclusionById(id);
+                      return (
+                        <ExclusionEntry
+                          key={id}
+                          title={entry?.name ?? id}
+                          tag={entry ? `${entry.category} · ${entry.frequency}` : "Library"}
+                          wording={entry?.wording ?? "This exclusion is no longer in the standard library."}
+                        />
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+
+              {custom.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-accent">
+                    Carrier-drafted
+                  </p>
+                  <ul className="mt-3 space-y-4">
+                    {custom.map((exclusion, index) => (
+                      <ExclusionEntry
+                        key={`${exclusion.title}-${index}`}
+                        title={exclusion.title}
+                        tag="Custom"
+                        wording={exclusion.wording}
+                      />
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>

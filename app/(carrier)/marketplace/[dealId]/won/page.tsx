@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { getDealStore } from "@/lib/mock-store";
 import { getServerSession } from "@/lib/get-session";
+import { canCarrierSeeDeal } from "@/lib/carriers";
 import { formatCurrency } from "@/lib/premium";
 import { formatDate } from "@/lib/utils";
 import { mockContactEmail, mockContactName, mockContactPhone, mockIndexForId } from "@/lib/kpi";
@@ -43,6 +44,14 @@ export default async function WonBidPage({ params }: { params: { dealId: string 
   const session = getServerSession();
 
   if (!deal || !session) {
+    notFound();
+  }
+
+  // Distribution is enforced here too, not just on the marketplace list —
+  // otherwise a carrier off the list could open the deal straight by URL.
+  if (!canCarrierSeeDeal(deal.distribution?.carrierNames, session.organizationName, {
+    unrestricted: session.role === "Admin",
+  })) {
     notFound();
   }
 

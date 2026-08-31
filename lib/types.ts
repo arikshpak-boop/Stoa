@@ -147,6 +147,12 @@ export interface ExclusionClause {
   editable: boolean;
 }
 
+/** An exclusion drafted by the underwriter rather than picked from a list. */
+export interface CustomExclusion {
+  title: string;
+  wording: string;
+}
+
 export interface Bid {
   id: string;
   dealId: string;
@@ -164,11 +170,16 @@ export interface Bid {
   bidStatus: BidStatus;
   submittedAt: string;
   /**
-   * Warranties the carrier requires excluded as a condition of this quote.
-   * Optional because bids placed before carrier-specified exclusions existed
-   * won't carry it. Resolve against the deal's exclusion report for wording.
+   * Exclusions a carrier attaches to its quote, in three tiers.
+   *
+   * `requestedExclusions` are the system-recommended ones, referencing the
+   * deal's own exclusion report. `libraryExclusions` are ids from the standard
+   * market library. `customExclusions` are free-drafted by the underwriter.
+   * All three are optional so bids placed before each tier existed still load.
    */
   requestedExclusions?: WarrantyIdentifier[];
+  libraryExclusions?: string[];
+  customExclusions?: CustomExclusion[];
   /** Underwriting contact, when the carrier has supplied one. */
   carrierContactEmail?: string;
 }

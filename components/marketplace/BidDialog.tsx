@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PhoneCall } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { BidForm } from "@/components/marketplace/BidForm";
+import type { ExclusionClause } from "@/lib/types";
 
 interface BidDialogProps {
   dealId: string;
@@ -13,6 +14,7 @@ interface BidDialogProps {
   currency: string;
   carrierName: string;
   suggestedRateOnLinePercent?: number;
+  recommendedExclusions?: ExclusionClause[];
   trigger: React.ReactNode;
   /** When true, offers a last-chance link into the Underwriting Call room before the bid is committed. */
   showUnderwritingCallLink?: boolean;
@@ -25,6 +27,7 @@ export function BidDialog({
   currency,
   carrierName,
   suggestedRateOnLinePercent,
+  recommendedExclusions,
   trigger,
   showUnderwritingCallLink = true,
 }: BidDialogProps) {
@@ -52,6 +55,7 @@ export function BidDialog({
         )}
         <BidForm
           dealId={dealId}
+          recommendedExclusions={recommendedExclusions}
           enterpriseValue={enterpriseValue}
           currency={currency}
           carrierName={carrierName}

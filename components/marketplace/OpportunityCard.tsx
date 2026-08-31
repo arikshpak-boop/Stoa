@@ -94,6 +94,7 @@ export function OpportunityCard({ deal, index, organizationName }: { deal: Deal;
             </Link>
           </Button>
           <BidDialog
+                recommendedExclusions={deal.exclusions}
             dealId={deal.id}
             dealName={deal.target.companyName}
             enterpriseValue={deal.financials.enterpriseValue}

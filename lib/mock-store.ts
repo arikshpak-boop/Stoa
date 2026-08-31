@@ -64,6 +64,7 @@ interface SeedSpec {
     policyExpiration: string;
     bidStatus: Bid["bidStatus"];
     requestedExclusions?: WarrantyIdentifier[];
+    libraryExclusions?: string[];
   }>;
   fieldConfidence?: {
     companyName: number;
@@ -161,6 +162,8 @@ function buildDeal(spec: SeedSpec): Deal {
       bidStatus: bidSpec.bidStatus,
       submittedAt: now,
       requestedExclusions: bidSpec.requestedExclusions ?? [],
+      libraryExclusions: bidSpec.libraryExclusions ?? [],
+      customExclusions: [],
     };
   });
 
@@ -231,8 +234,8 @@ const SEED_SPECS: SeedSpec[] = [
       "CONTR-01": ["Top-10 customer contract change-of-control clauses"],
     },
     bids: [
-      { carrierName: "Euclid Transactional", limitAmount: 27_750_000, retentionAmount: 925_000, retentionTrigger: "Tipping", rateOnLinePercent: 2.8, underwritingFees: 45_000, expenseCap: 75_000, policyExpiration: "2033-08-15", bidStatus: "Pending", requestedExclusions: ["TAX-01", "ENV-01"] },
-      { carrierName: "Berkshire Hathaway (BHSI)", limitAmount: 18_500_000, retentionAmount: 740_000, retentionTrigger: "Erosion", rateOnLinePercent: 3.1, underwritingFees: 38_000, expenseCap: 60_000, policyExpiration: "2033-08-15", bidStatus: "Pending", requestedExclusions: ["ENV-01", "EMPL-01", "CONTR-01"] },
+      { carrierName: "Euclid Transactional", limitAmount: 27_750_000, retentionAmount: 925_000, retentionTrigger: "Tipping", rateOnLinePercent: 2.8, underwritingFees: 45_000, expenseCap: 75_000, policyExpiration: "2033-08-15", bidStatus: "Pending", requestedExclusions: ["TAX-01", "ENV-01"], libraryExclusions: ["actual-knowledge", "forward-looking-reps", "transfer-pricing"] },
+      { carrierName: "Berkshire Hathaway (BHSI)", limitAmount: 18_500_000, retentionAmount: 740_000, retentionTrigger: "Erosion", rateOnLinePercent: 3.1, underwritingFees: 38_000, expenseCap: 60_000, policyExpiration: "2033-08-15", bidStatus: "Pending", requestedExclusions: ["ENV-01", "EMPL-01", "CONTR-01"], libraryExclusions: ["actual-knowledge", "pension-underfunding", "pfas"] },
     ],
     underwritingQuestions: [
       {
