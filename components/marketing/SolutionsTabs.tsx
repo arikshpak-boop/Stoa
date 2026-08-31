@@ -123,7 +123,7 @@ export function SolutionsTabs() {
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Button asChild>
               <Link href="/contact">
-                Get Instant Terms
+                Get Started
                 <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>

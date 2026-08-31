@@ -65,12 +65,6 @@ export function MarketingHeader() {
                   </div>
                 </div>
               ))}
-              <Link
-                href="/signup"
-                className="rounded-full px-3 py-2 text-[15px] font-medium text-primary transition-colors hover:text-accent"
-              >
-                Get Started
-              </Link>
               <span className="ml-1 flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground" aria-hidden="true">
                 <Search className="h-4 w-4" />
               </span>
@@ -82,7 +76,7 @@ export function MarketingHeader() {
               <Link href="/login">Sign In</Link>
             </Button>
             <Button asChild>
-              <Link href="/contact">Get Instant Terms</Link>
+              <Link href="/contact">Get Started</Link>
             </Button>
           </div>
         </div>
