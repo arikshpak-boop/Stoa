@@ -65,19 +65,24 @@ export function isPanelMember(organizationName: string): boolean {
 /**
  * Whether a carrier organisation may see a given deal.
  *
- * Three cases, in order:
- *  - Deal predates distribution (or was submitted without it): visible to all,
- *    so seeded and legacy deals don't vanish from the marketplace.
- *  - Viewer is not on the panel at all (admin and demo carrier accounts):
- *    visible, since restricting a non-member to "their" selections is meaningless.
- *  - Otherwise: visible only if the broker selected them.
+ * Distribution is enforced strictly: if a broker named the markets a deal goes
+ * to, only those markets see it. There is no permissive fallback for accounts
+ * that happen not to match a panel entry — an unrecognised carrier org is
+ * treated as not selected, which fails closed rather than leaking the deal.
+ *
+ * Two exceptions, both deliberate:
+ *  - `unrestricted` (platform admins) bypasses the check entirely, since admins
+ *    browse both portals by design.
+ *  - A deal with no distribution stays visible to everyone, so deals seeded or
+ *    submitted before this feature existed don't vanish from the marketplace.
  */
 export function canCarrierSeeDeal(
   distributionCarrierNames: readonly string[] | undefined,
   organizationName: string,
+  options: { unrestricted?: boolean } = {},
 ): boolean {
+  if (options.unrestricted) return true;
   if (!distributionCarrierNames || distributionCarrierNames.length === 0) return true;
-  if (!isPanelMember(organizationName)) return true;
   return distributionCarrierNames.some(
     (name) => name.toLowerCase() === organizationName.trim().toLowerCase(),
   );

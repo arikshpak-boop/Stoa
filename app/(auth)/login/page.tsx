@@ -13,7 +13,7 @@ import { roleHomePath, type Session } from "@/lib/session";
 
 const DEMO_ACCOUNTS = [
   { label: "Broker demo", email: "alexandra.reyes@meridiancapital.com" },
-  { label: "Carrier demo", email: "priya.narayan@atlas-assurance.com" },
+  { label: "Carrier demo", email: "priya.narayan@euclidtransactional.com" },
   { label: "Admin demo (both sides)", email: "morgan.chen@stoa.com" },
 ];
 

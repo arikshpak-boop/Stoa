@@ -27,7 +27,7 @@ describe("carrier panel", () => {
   it("matches panel membership case-insensitively", () => {
     expect(isPanelMember("Chubb")).toBe(true);
     expect(isPanelMember("  chubb ")).toBe(true);
-    expect(isPanelMember("Atlas Assurance Group")).toBe(false);
+    expect(isPanelMember("Some Unlisted Market Ltd")).toBe(false);
   });
 });
 
@@ -45,9 +45,15 @@ describe("canCarrierSeeDeal", () => {
     expect(canCarrierSeeDeal(["AIG", "Chubb"], "Beazley")).toBe(false);
   });
 
-  it("does not restrict organisations that are not on the panel", () => {
-    // Admin and demo carrier accounts are not panel markets, so gating them to
-    // "their" selections would hide every deal from them for no benefit.
-    expect(canCarrierSeeDeal(["AIG"], "Atlas Assurance Group")).toBe(true);
+  it("fails closed for organisations that are not on the panel", () => {
+    expect(canCarrierSeeDeal(["AIG"], "Some Unlisted Market Ltd")).toBe(false);
+  });
+
+  it("matches the selected carrier case- and whitespace-insensitively", () => {
+    expect(canCarrierSeeDeal(["Berkshire Hathaway (BHSI)"], "  berkshire hathaway (bhsi) ")).toBe(true);
+  });
+
+  it("lets platform admins bypass distribution entirely", () => {
+    expect(canCarrierSeeDeal(["AIG"], "Stoa Platform Team", { unrestricted: true })).toBe(true);
   });
 });

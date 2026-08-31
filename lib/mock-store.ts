@@ -229,18 +229,18 @@ const SEED_SPECS: SeedSpec[] = [
       "CONTR-01": ["Top-10 customer contract change-of-control clauses"],
     },
     bids: [
-      { carrierName: "Atlas Assurance Group", limitAmount: 27_750_000, retentionAmount: 925_000, retentionTrigger: "Tipping", rateOnLinePercent: 2.8, underwritingFees: 45_000, expenseCap: 75_000, policyExpiration: "2033-08-15", bidStatus: "Pending" },
-      { carrierName: "Beacon Hill Specialty Re", limitAmount: 18_500_000, retentionAmount: 740_000, retentionTrigger: "Erosion", rateOnLinePercent: 3.1, underwritingFees: 38_000, expenseCap: 60_000, policyExpiration: "2033-08-15", bidStatus: "Pending" },
+      { carrierName: "Euclid Transactional", limitAmount: 27_750_000, retentionAmount: 925_000, retentionTrigger: "Tipping", rateOnLinePercent: 2.8, underwritingFees: 45_000, expenseCap: 75_000, policyExpiration: "2033-08-15", bidStatus: "Pending" },
+      { carrierName: "Berkshire Hathaway (BHSI)", limitAmount: 18_500_000, retentionAmount: 740_000, retentionTrigger: "Erosion", rateOnLinePercent: 3.1, underwritingFees: 38_000, expenseCap: 60_000, policyExpiration: "2033-08-15", bidStatus: "Pending" },
     ],
     underwritingQuestions: [
       {
         question: "The open-source license audit is missing from the VDR. Can you confirm whether any copyleft (GPL/AGPL) components ship in the core product?",
-        askedBy: "Atlas Assurance Group",
+        askedBy: "Euclid Transactional",
         answer: "Confirmed with the target's CTO: the core platform ships no GPL/AGPL components. Two AGPL tools are used internally for build tooling only and are not distributed. The completed license audit will be uploaded to the VDR this week.",
       },
       {
         question: "Which of the top-10 customer contracts contain change-of-control consent requirements, and have any consents been obtained pre-signing?",
-        askedBy: "Beacon Hill Specialty Re",
+        askedBy: "Berkshire Hathaway (BHSI)",
         answer: null,
       },
     ],
@@ -261,7 +261,7 @@ const SEED_SPECS: SeedSpec[] = [
       "EMPL-01": ["Works council consultation minutes"],
     },
     bids: [
-      { carrierName: "Cobalt Line Underwriters", limitAmount: 13_800_000, retentionAmount: 460_000, retentionTrigger: "Tipping", rateOnLinePercent: 3.4, underwritingFees: 32_000, expenseCap: 55_000, policyExpiration: "2033-07-31", bidStatus: "Pending" },
+      { carrierName: "Mosaic Insurance", limitAmount: 13_800_000, retentionAmount: 460_000, retentionTrigger: "Tipping", rateOnLinePercent: 3.4, underwritingFees: 32_000, expenseCap: 55_000, policyExpiration: "2033-07-31", bidStatus: "Pending" },
     ],
   },
   {
@@ -297,8 +297,8 @@ const SEED_SPECS: SeedSpec[] = [
     ],
     missingDisclosuresByWarranty: {},
     bids: [
-      { carrierName: "Atlas Assurance Group", limitAmount: 91_500_000, retentionAmount: 3_050_000, retentionTrigger: "Tipping", rateOnLinePercent: 2.4, underwritingFees: 120_000, expenseCap: 180_000, policyExpiration: "2033-06-30", bidStatus: "Accepted" },
-      { carrierName: "Beacon Hill Specialty Re", limitAmount: 61_000_000, retentionAmount: 2_400_000, retentionTrigger: "Erosion", rateOnLinePercent: 2.7, underwritingFees: 98_000, expenseCap: 150_000, policyExpiration: "2033-06-30", bidStatus: "Declined" },
+      { carrierName: "Euclid Transactional", limitAmount: 91_500_000, retentionAmount: 3_050_000, retentionTrigger: "Tipping", rateOnLinePercent: 2.4, underwritingFees: 120_000, expenseCap: 180_000, policyExpiration: "2033-06-30", bidStatus: "Accepted" },
+      { carrierName: "Berkshire Hathaway (BHSI)", limitAmount: 61_000_000, retentionAmount: 2_400_000, retentionTrigger: "Erosion", rateOnLinePercent: 2.7, underwritingFees: 98_000, expenseCap: 150_000, policyExpiration: "2033-06-30", bidStatus: "Declined" },
     ],
   },
   {

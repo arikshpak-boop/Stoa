@@ -17,7 +17,9 @@ export default async function CarrierMarketplacePage() {
   const deals = allDeals.filter(
     (deal) =>
       (deal.status === "Submitted" || deal.status === "Analyzed" || deal.status === "Closed") &&
-      canCarrierSeeDeal(deal.distribution?.carrierNames, organizationName),
+      canCarrierSeeDeal(deal.distribution?.carrierNames, organizationName, {
+        unrestricted: session?.role === "Admin",
+      }),
   );
   const computedKpis = computeCarrierKpis(allDeals, organizationName);
   const kpis = carrierHasBidHistory(computedKpis)

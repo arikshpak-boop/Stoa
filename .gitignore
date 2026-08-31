@@ -27,3 +27,13 @@ next-env.d.ts
 
 # vercel
 .vercel
+
+# Ad-hoc SEC filing downloads (scratch data, not part of the app)
+/download_defm14a.py
+/download_sec_to_zip.py
+/sec_defm14a_filings*/
+/sec_s4_filings*/
+/sec_*_filings*.zip
+
+# Local tooling
+/.claude/settings.local.json

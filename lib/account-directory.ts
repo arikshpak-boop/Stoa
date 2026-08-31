@@ -4,8 +4,8 @@ import type { UserAccount } from "./session";
 const SEED_ACCOUNTS: UserAccount[] = [
   { email: "alexandra.reyes@meridiancapital.com", password: "stoa-demo", organizationName: "Meridian Capital Partners", role: "Broker" },
   { email: "daniel.osei@northgateadvisors.com", password: "stoa-demo", organizationName: "Northgate M&A Advisors", role: "Broker" },
-  { email: "priya.narayan@atlas-assurance.com", password: "stoa-demo", organizationName: "Atlas Assurance Group", role: "Carrier" },
-  { email: "marcus.lindqvist@beaconhillre.com", password: "stoa-demo", organizationName: "Beacon Hill Specialty Re", role: "Carrier" },
+  { email: "priya.narayan@euclidtransactional.com", password: "stoa-demo", organizationName: "Euclid Transactional", role: "Carrier" },
+  { email: "marcus.lindqvist@bhspecialty.com", password: "stoa-demo", organizationName: "Berkshire Hathaway (BHSI)", role: "Carrier" },
   { email: "morgan.chen@stoa.com", password: "stoa-demo", organizationName: "Stoa Platform Team", role: "Admin" },
 ];
 

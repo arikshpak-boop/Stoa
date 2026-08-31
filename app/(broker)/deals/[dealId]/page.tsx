@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, DollarSign, FileText, Gauge, PhoneCall, ShieldCheck, Zap } from "lucide-react";
+import { ArrowRight, DollarSign, FileText, Gauge, PhoneCall, ShieldCheck, Users, Zap } from "lucide-react";
 import { getDealStore } from "@/lib/mock-store";
 import { formatCurrency } from "@/lib/premium";
 import { formatDate } from "@/lib/utils";
@@ -107,6 +107,47 @@ export default async function DealDetailPage({ params }: { params: { dealId: str
           </CardContent>
         </Card>
       </div>
+
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <Users className="h-4 w-4 text-accent" aria-hidden="true" />
+            Carrier Distribution
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-sm">
+          {deal.distribution && deal.distribution.carrierNames.length > 0 ? (
+            <>
+              <p className="text-muted-foreground">
+                Presented to{" "}
+                <span className="font-semibold text-primary">
+                  {deal.distribution.carrierNames.length} carrier
+                  {deal.distribution.carrierNames.length === 1 ? "" : "s"}
+                </span>{" "}
+                on {formatDate(deal.distribution.selectedAt)}. Only these markets can see this deal.
+              </p>
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {deal.distribution.carrierNames.map((carrierName) => {
+                  const hasBid = deal.bids.some((bid) => bid.carrierName === carrierName);
+                  return (
+                    <li key={carrierName}>
+                      <Badge variant={hasBid ? "success" : "accent"} className="normal-case tracking-normal">
+                        {carrierName}
+                        {hasBid && " · bid in"}
+                      </Badge>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          ) : (
+            <p className="text-muted-foreground">
+              This deal was submitted before carrier distribution existed, so it is visible to every
+              carrier on the panel.
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
         <RiskCategoryHeatmap warranties={deal.warranties} />
