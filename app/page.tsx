@@ -159,9 +159,11 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white">
       <MarketingHeader />
 
-      {/* HERO — oversized light display type, organic blob, pill actions. */}
+      {/* ── MOVEMENT 1 ────────────────────────────────────────────────────
+          Hero, proof-rail and value props share one white ground and flow
+          into each other. Previously three separate banded "slides". */}
       <section className="relative overflow-hidden">
-        <div className="container-page relative py-16 sm:py-24">
+        <div className="container-page relative pt-16 sm:pt-24">
           <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-[1.15fr_0.85fr]">
             <div>
               <EyebrowBadge dotColor="accent">Institutional Trust · Algorithmic Precision</EyebrowBadge>
@@ -190,7 +192,6 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Blob-backed stat cluster stands in for Embroker's cut-out photography. */}
             <div className="relative mx-auto w-full max-w-md lg:mx-0">
               <div className="blob absolute -right-8 -top-10 h-72 w-72 bg-band-sky" aria-hidden="true" />
               <div className="blob-alt absolute -bottom-12 -left-10 h-56 w-56 bg-band-tint" aria-hidden="true" />
@@ -207,48 +208,22 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* TRUST BAND */}
-      <section id="trust" className="bg-band-mist">
-        <div className="container-page py-12">
-          <p className="text-center text-sm text-muted-foreground">
-            Trusted infrastructure for institutional transactions
-          </p>
-          <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
+          {/* Credential rail — a hairline, not a new band. */}
+          <ul id="trust" className="mt-20 flex flex-wrap items-center justify-center gap-x-10 gap-y-4 border-t border-border pt-10">
             {CREDENTIALS.map((credential) => (
               <li key={credential} className="text-xs font-semibold uppercase tracking-[0.12em] text-subtle">
                 {credential}
               </li>
             ))}
           </ul>
-        </div>
-      </section>
 
-      {/* SOLUTIONS — tabbed, the way Xometry splits Services / Use Cases. */}
-      <section id="solutions" className="section bg-white">
-        <div className="container-page">
-          <p className="eyebrow">Solutions</p>
-          <h2 className="section-title max-w-3xl">
-            One submission. Every structure your transaction needs.
-          </h2>
-          <div className="mt-10">
-            <SolutionsTabs />
-          </div>
-        </div>
-      </section>
-
-      {/* VALUE PROPS */}
-      <section className="section bg-band-tint">
-        <div className="container-page">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Value props carry straight on, unheaded — connective tissue. */}
+          <div className="mt-16 grid grid-cols-1 gap-x-10 gap-y-10 pb-20 sm:grid-cols-2 lg:grid-cols-4">
             {VALUE_PROPS.map((prop) => (
-              <div key={prop.title} className="rounded-lg bg-white p-7 shadow-card transition-shadow hover:shadow-lift">
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-tint text-accent">
-                  <prop.icon className="h-5 w-5" aria-hidden="true" />
-                </span>
-                <h3 className="mt-5 font-sans text-lg font-semibold text-primary">{prop.title}</h3>
+              <div key={prop.title}>
+                <prop.icon className="h-6 w-6 text-accent" aria-hidden="true" />
+                <h3 className="mt-4 font-sans text-base font-semibold text-primary">{prop.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{prop.description}</p>
               </div>
             ))}
@@ -256,102 +231,157 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CAPABILITIES */}
+      {/* ── MOVEMENT 2: Solutions ─────────────────────────────────────────
+          Heading sits left against a lede on the right, not centred. */}
+      <section id="solutions" className="section bg-band-tint">
+        <div className="container-page">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_0.8fr] lg:items-end">
+            <h2 className="text-display-sm sm:text-display-md">
+              One submission. Every structure your transaction needs.
+            </h2>
+            <p className="text-base leading-relaxed text-muted-foreground lg:pb-2">
+              Four cover structures, one verified deal file, and the same panel of carriers pricing
+              against it.
+            </p>
+          </div>
+          <div className="mt-12">
+            <SolutionsTabs />
+          </div>
+        </div>
+      </section>
+
+      {/* ── MOVEMENT 3: Why Stoa ──────────────────────────────────────────
+          Sticky heading on the left; capabilities stagger on the right so
+          the grid never reads as a uniform slab. Compounding advantages
+          continue the same movement rather than opening a new band. */}
       <section id="why" className="section bg-white">
         <div className="container-page">
-          <p className="eyebrow">Why Choose Stoa</p>
-          <h2 className="section-title max-w-3xl">Built for tier-1 underwriters and corporate legal teams</h2>
-          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {CAPABILITIES.map((capability) => (
-              <div key={capability.title} className="rounded-lg border border-border bg-white p-7 transition-shadow hover:shadow-lift">
-                <capability.icon className="h-6 w-6 text-accent" aria-hidden="true" />
-                <h3 className="mt-5 font-sans text-lg font-semibold text-primary">{capability.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{capability.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[0.8fr_1.2fr]">
+            <div className="lg:sticky lg:top-28 lg:self-start">
+              <p className="eyebrow">Why Choose Stoa</p>
+              <h2 className="section-title">Built for tier-1 underwriters and corporate legal teams</h2>
+              <p className="section-lede">
+                Every capability below exists to remove a step a human currently repeats by hand.
+              </p>
+            </div>
 
-      {/* COMPOUNDING ADVANTAGE — top-rule accent cards from the original deck. */}
-      <section id="compounds" className="section bg-band-mist">
-        <div className="container-page">
-          <p className="eyebrow flex items-center gap-3">
-            <span className="h-px w-8 bg-accent" aria-hidden="true" />
-            Why Stoa Compounds
-          </p>
-          <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
-            {COMPOUNDING_ADVANTAGES.map((advantage) => (
-              <div
-                key={advantage.title}
-                className="overflow-hidden rounded-lg bg-white shadow-card transition-shadow hover:shadow-lift"
-              >
-                <span className="block h-1 w-full bg-accent" aria-hidden="true" />
-                <div className="p-7">
-                  <h3 className="flex items-center gap-2.5 font-sans text-lg font-semibold text-primary">
-                    <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-accent" aria-hidden="true" />
-                    {advantage.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                    {advantage.description}
-                  </p>
+            <div className="grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2">
+              {CAPABILITIES.map((capability, index) => (
+                <div key={capability.title} className={index % 2 === 1 ? "sm:mt-12" : undefined}>
+                  <capability.icon className="h-6 w-6 text-accent" aria-hidden="true" />
+                  <h3 className="mt-4 font-sans text-lg font-semibold text-primary">{capability.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{capability.description}</p>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+          </div>
+
+          <div id="compounds" className="mt-24 border-t border-border pt-14">
+            <p className="eyebrow flex items-center gap-3">
+              <span className="h-px w-8 bg-accent" aria-hidden="true" />
+              Why Stoa Compounds
+            </p>
+            <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+              {COMPOUNDING_ADVANTAGES.map((advantage) => (
+                <div key={advantage.title} className="overflow-hidden rounded-lg bg-white shadow-card transition-shadow hover:shadow-lift">
+                  <span className="block h-1 w-full bg-accent" aria-hidden="true" />
+                  <div className="p-7">
+                    <h3 className="flex items-center gap-2.5 font-sans text-lg font-semibold text-primary">
+                      <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+                      {advantage.title}
+                    </h3>
+                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{advantage.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* PROCESS */}
-      <section id="process" className="section bg-band-sky">
+      {/* ── MOVEMENT 4: Process ───────────────────────────────────────────
+          A connected timeline rather than four equal boxes — the shape
+          itself communicates sequence. */}
+      <section id="process" className="section bg-band-mist">
         <div className="container-page">
-          <p className="eyebrow">How It Works</p>
-          <h2 className="section-title max-w-3xl">From data room to bound policy in under seven days</h2>
-          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {PROCESS_STEPS.map((step) => (
-              <div key={step.step} className="rounded-lg bg-white p-7 shadow-card">
-                <span className="font-display text-4xl font-medium leading-none tracking-tight text-accent">{step.step}</span>
-                <h3 className="mt-4 font-sans text-lg font-semibold text-primary">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.description}</p>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_0.8fr] lg:items-end">
+            <h2 className="text-display-sm sm:text-display-md">
+              From data room to bound policy in under seven days
+            </h2>
+            <p className="text-base leading-relaxed text-muted-foreground lg:pb-2">
+              Four stages, each one removing work the market currently does twice.
+            </p>
           </div>
+
+          <ol className="relative mt-14 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            {/* The through-line that turns four cards into one sequence. */}
+            <span
+              className="absolute left-0 right-0 top-5 hidden h-px bg-accent/25 lg:block"
+              aria-hidden="true"
+            />
+            {PROCESS_STEPS.map((step) => (
+              <li key={step.step} className="relative">
+                <span className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full bg-accent font-display text-sm font-semibold text-white">
+                  {step.step}
+                </span>
+                <h3 className="mt-5 font-sans text-lg font-semibold text-primary">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.description}</p>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
 
-      {/* PROOF — Xometry's "Real Stories, Real Impact" rail. */}
+      {/* ── MOVEMENT 5: Proof ─────────────────────────────────────────────
+          One lead story carries the weight; two supporting stories sit
+          beside it. Testimonials continue on the same ground. */}
       <section id="proof" className="section bg-white">
         <div className="container-page">
-          <p className="eyebrow">Real Deals, Real Outcomes</p>
-          <h2 className="section-title max-w-3xl">What placement looks like when the file never moves</h2>
-          <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
-            {CASE_STUDIES.map((study) => (
-              <article key={study.title} className="flex flex-col rounded-lg border border-border bg-white p-7 transition-shadow hover:shadow-lift">
-                <span className="text-xs font-bold uppercase tracking-[0.12em] text-accent">{study.tag}</span>
-                <h3 className="mt-4 font-sans text-lg font-semibold leading-snug text-primary">{study.title}</h3>
-                <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">{study.detail}</p>
-                <span className="mt-5 inline-flex items-center text-sm font-semibold text-accent">
+          <h2 className="max-w-3xl text-display-sm sm:text-display-md">
+            What placement looks like when the file never moves
+          </h2>
+
+          <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+            {CASE_STUDIES.slice(0, 1).map((study) => (
+              <article key={study.title} className="flex flex-col justify-between rounded-xl bg-band-tint p-9">
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-[0.12em] text-accent">{study.tag}</span>
+                  <h3 className="mt-5 font-display text-2xl font-medium leading-snug text-primary">{study.title}</h3>
+                  <p className="mt-4 text-base leading-relaxed text-muted-foreground">{study.detail}</p>
+                </div>
+                <span className="mt-8 inline-flex items-center text-sm font-semibold text-accent">
                   Read the story
                   <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
                 </span>
               </article>
             ))}
+
+            <div className="flex flex-col gap-8">
+              {CASE_STUDIES.slice(1).map((study) => (
+                <article key={study.title} className="flex-1 border-l-2 border-accent/30 pl-6">
+                  <span className="text-xs font-bold uppercase tracking-[0.12em] text-accent">{study.tag}</span>
+                  <h3 className="mt-3 font-sans text-lg font-semibold leading-snug text-primary">{study.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{study.detail}</p>
+                  <span className="mt-4 inline-flex items-center text-sm font-semibold text-accent">
+                    Read the story
+                    <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
+                  </span>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
-      </section>
 
-      {/* TESTIMONIAL MARQUEE */}
-      <section className="bg-band-mist py-14">
-        <div className="mask-fade-x overflow-hidden">
+        <div className="mask-fade-x mt-20 overflow-hidden">
           <ul className="flex w-max animate-marquee gap-4 px-4">
             {[...TESTIMONIALS, ...TESTIMONIALS].map((testimonial, index) => (
               <li
                 key={`${testimonial.name}-${index}`}
                 aria-hidden={index >= TESTIMONIALS.length}
-                className="w-[360px] shrink-0 rounded-lg bg-white p-7 shadow-card"
+                className="w-[360px] shrink-0 rounded-lg border border-border bg-white p-7"
               >
                 <Quote className="h-4 w-4 text-accent" aria-hidden="true" />
-                <p className="mt-3 text-sm leading-relaxed text-foreground">“{testimonial.quote}”</p>
+                <p className="mt-3 text-sm leading-relaxed text-foreground">&ldquo;{testimonial.quote}&rdquo;</p>
                 <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   {testimonial.name}
                 </p>
@@ -361,13 +391,18 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* DUAL AUDIENCE */}
-      <section id="platform" className="section bg-white">
-        <div className="container-page">
-          <p className="eyebrow">Two Sides, One Record</p>
-          <h2 className="section-title max-w-3xl">Life of a deal</h2>
-          <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="rounded-xl bg-primary p-9 text-white">
+      {/* ── MOVEMENT 6: Two sides, then the close ─────────────────────────
+          The dual-audience panels and the closing CTA are one continuous
+          dark finish rather than a white slide followed by a dark slide. */}
+      <section id="platform" className="bg-primary">
+        <div className="container-page section">
+          <h2 className="max-w-3xl text-display-sm text-white sm:text-display-md">Life of a deal</h2>
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-white/60">
+            Two sides of the same record — neither one re-keying what the other already entered.
+          </p>
+
+          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="rounded-xl border border-white/15 bg-white/5 p-9">
               <ShieldCheck className="h-6 w-6 text-white" aria-hidden="true" />
               <h3 className="mt-5 font-display text-2xl font-medium text-white">For Deal Makers</h3>
               <p className="mt-3 text-sm leading-relaxed text-white/70">
@@ -383,7 +418,7 @@ export default function LandingPage() {
                 </Button>
               </div>
             </div>
-            <div className="rounded-xl border border-border bg-white p-9">
+            <div className="rounded-xl bg-white p-9">
               <Gauge className="h-6 w-6 text-accent" aria-hidden="true" />
               <h3 className="mt-5 font-display text-2xl font-medium text-primary">For Insurance Carriers</h3>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -400,28 +435,25 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* CLOSING CTA */}
-      <section className="bg-primary">
-        <div className="container-page py-16 text-center">
-          <h2 className="text-display-sm text-white sm:text-display-md">
-            Ready to close faster?
-          </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-white/70">
-            Submit a transaction package and receive structured carrier bids on a fully auditable marketplace.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Button size="lg" asChild>
-              <Link href="/contact">
-                Start Your First Deal
-                <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="neutral" asChild>
-              <Link href="/contact">Explore Marketplace</Link>
-            </Button>
+          <div className="mt-20 border-t border-white/10 pt-16 text-center">
+            <h2 className="text-display-sm text-white sm:text-display-md">
+              Ready to bring your next deal to market?
+            </h2>
+            <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-white/70">
+              Submit a transaction package and receive structured carrier bids on a fully auditable marketplace.
+            </p>
+            <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+              <Button size="lg" asChild>
+                <Link href="/contact">
+                  Start Your First Deal
+                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                </Link>
+              </Button>
+              <Button size="lg" variant="neutral" asChild>
+                <Link href="/contact">Explore Marketplace</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
