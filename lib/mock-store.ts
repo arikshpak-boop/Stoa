@@ -5,6 +5,7 @@ import { computeWarrantyRiskProfile, generateExclusionReport } from "./risk-engi
 import { assessDataRoomQuality } from "./dd-quality";
 import { classifyDocument, isIncludedInAnalysis } from "./document-classification";
 import { redis, isRedisConfigured } from "./redis";
+import { resolveCarrierNames } from "./carriers";
 import type {
   Bid,
   Deal,
@@ -40,6 +41,8 @@ export function createVdrDocument(input: { fileName: string; fileType: VdrDocume
   };
 }
 
+export type SeedSpecForTest = SeedSpec;
+
 interface SeedSpec {
   organizationName: string;
   target: DealTarget;
@@ -49,6 +52,7 @@ interface SeedSpec {
   status: Deal["status"];
   documents: Array<{ fileName: string; fileType: VdrDocument["fileType"]; sizeBytes: number }>;
   missingDisclosuresByWarranty: Partial<Record<WarrantyIdentifier, string[]>>;
+  distributionCarrierIds?: string[];
   bids: Array<{
     carrierName: string;
     limitAmount: number;
@@ -192,6 +196,13 @@ function buildDeal(spec: SeedSpec): Deal {
       answer: q.answer,
       answeredAt: q.answer === null ? null : now,
     })),
+    distribution: spec.distributionCarrierIds?.length
+      ? {
+          carrierIds: spec.distributionCarrierIds,
+          carrierNames: resolveCarrierNames(spec.distributionCarrierIds),
+          selectedAt: now,
+        }
+      : undefined,
     ddQuality,
     version: 1,
     snapshotHash,

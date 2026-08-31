@@ -368,13 +368,13 @@ export default function LandingPage() {
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button size="lg" asChild>
-              <Link href="/signup?role=Broker">
+              <Link href="/contact">
                 Get Instant Terms
                 <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <Link href="/signup?role=Carrier">Talk to Our Team</Link>
+              <Link href="/contact">Talk to Our Team</Link>
             </Button>
           </div>
         </div>

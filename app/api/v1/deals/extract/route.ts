@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDealStore } from "@/lib/mock-store";
 import { runMockExtraction, type ExtractionRequestPayload } from "@/lib/extraction";
+import { isPanelCarrierId } from "@/lib/carriers";
 import type { Deal, Sector } from "@/lib/types";
 
 const VALID_SECTORS: readonly Sector[] = [
@@ -20,6 +21,7 @@ interface ExtractRequestBody {
   sector: string;
   documents: Array<{ fileName: string; fileType: "pdf" | "xlsx" | "docx"; sizeBytes: number }>;
   dealValue?: number;
+  carrierIds?: string[];
 }
 
 function isValidSector(value: string): value is Sector {
@@ -48,6 +50,18 @@ export async function POST(request: NextRequest): Promise<NextResponse<{ deal: D
 
   if (!isValidSector(body.sector)) {
     return NextResponse.json({ error: `Unsupported sector: ${body.sector}` }, { status: 400 });
+  }
+
+  const carrierIds = body.carrierIds ?? [];
+
+  if (!Array.isArray(carrierIds) || carrierIds.length === 0) {
+    return NextResponse.json({ error: "Select at least one carrier to present this deal to." }, { status: 400 });
+  }
+
+  const unknownCarrier = carrierIds.find((id) => typeof id !== "string" || !isPanelCarrierId(id));
+
+  if (unknownCarrier !== undefined) {
+    return NextResponse.json({ error: `Unknown carrier: ${String(unknownCarrier)}` }, { status: 400 });
   }
 
   const payload: ExtractionRequestPayload = {
@@ -89,6 +103,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<{ deal: D
     documents: payload.documents,
     missingDisclosuresByWarranty: extraction.missingDisclosuresByWarranty,
     bids: [],
+    distributionCarrierIds: Array.from(new Set(carrierIds)),
     fieldConfidence: extraction.fieldConfidence,
   });
 

@@ -180,6 +180,13 @@ export interface UnderwritingOpenQuestion {
   answeredAt: string | null;
 }
 
+/** Which carriers on the panel a deal maker chose to present a deal to. */
+export interface DealDistribution {
+  carrierIds: string[];
+  carrierNames: string[];
+  selectedAt: string;
+}
+
 export interface Deal {
   id: string;
   organizationId: string;
@@ -207,6 +214,8 @@ export interface Deal {
   bids: Bid[];
   /** Optional because deals persisted before the Underwriting Call feature won't carry it. */
   underwritingQuestions?: UnderwritingOpenQuestion[];
+  /** Optional because deals submitted before carrier distribution won't carry it. */
+  distribution?: DealDistribution;
   ddQuality: DDQualityAssessment;
   version: number;
   snapshotHash: string;

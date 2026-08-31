@@ -1,6 +1,7 @@
 import { DollarSign, FileText, TrendingUp, Zap } from "lucide-react";
 import { getDealStore } from "@/lib/mock-store";
 import { getServerSession } from "@/lib/get-session";
+import { canCarrierSeeDeal } from "@/lib/carriers";
 import { carrierHasBidHistory, computeCarrierKpis, summarizeMyActiveBids, DEMO_CARRIER_KPI_FALLBACK } from "@/lib/kpi";
 import { formatCurrency } from "@/lib/premium";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +14,11 @@ export default async function CarrierMarketplacePage() {
   const allDeals = await getDealStore().list();
   const session = getServerSession();
   const organizationName = session?.organizationName ?? "";
-  const deals = allDeals.filter((deal) => deal.status === "Submitted" || deal.status === "Analyzed" || deal.status === "Closed");
+  const deals = allDeals.filter(
+    (deal) =>
+      (deal.status === "Submitted" || deal.status === "Analyzed" || deal.status === "Closed") &&
+      canCarrierSeeDeal(deal.distribution?.carrierNames, organizationName),
+  );
   const computedKpis = computeCarrierKpis(allDeals, organizationName);
   const kpis = carrierHasBidHistory(computedKpis)
     ? computedKpis

@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { FileDropZone, type StagedFile } from "@/components/ingestion/FileDropZone";
+import { CarrierDistributionSelector } from "@/components/broker/CarrierDistributionSelector";
+import { resolveCarrierNames } from "@/lib/carriers";
 import { formatCurrency } from "@/lib/premium";
 import { truncateHash } from "@/lib/utils";
 import type { Deal, Sector } from "@/lib/types";
@@ -26,7 +28,12 @@ const SECTORS: Sector[] = [
   "Business Services",
 ];
 
-const STEPS = ["Target & Deal Team", "Document Ingestion", "Submit for Extraction"] as const;
+const STEPS = [
+  "Target & Deal Team",
+  "Document Ingestion",
+  "Carrier Distribution",
+  "Submit for Extraction",
+] as const;
 
 export default function NewDealPage() {
   const router = useRouter();
@@ -37,6 +44,7 @@ export default function NewDealPage() {
   const [sector, setSector] = useState<Sector>("SaaS / Technology");
   const [dealValue, setDealValue] = useState(0);
   const [files, setFiles] = useState<StagedFile[]>([]);
+  const [carrierIds, setCarrierIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submittedDeal, setSubmittedDeal] = useState<Deal | null>(null);
@@ -53,7 +61,7 @@ export default function NewDealPage() {
       const response = await fetch("/api/v1/deals/extract", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ organizationName, companyName, jurisdiction, sector, documents: files, dealValue }),
+        body: JSON.stringify({ organizationName, companyName, jurisdiction, sector, documents: files, dealValue, carrierIds }),
       });
 
       if (!response.ok) {
@@ -76,6 +84,7 @@ export default function NewDealPage() {
     setCompanyName("");
     setDealValue(0);
     setFiles([]);
+    setCarrierIds([]);
     setError(null);
   }
 
@@ -146,7 +155,8 @@ export default function NewDealPage() {
           <CardDescription>
             {stepIndex === 0 && "Identify the submitting organization and the transaction target."}
             {stepIndex === 1 && "Upload SPA drafts, financial models, and disclosure schedules, or connect a VDR."}
-            {stepIndex === 2 && "Confirm the submission package before routing it to the extraction engine."}
+            {stepIndex === 2 && "Choose which carriers on the Stoa panel this deal is presented to. Only those you select will see it."}
+            {stepIndex === 3 && "Confirm the submission package before routing it to the extraction engine."}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -197,6 +207,10 @@ export default function NewDealPage() {
           {stepIndex === 1 && <FileDropZone files={files} onFilesChange={setFiles} />}
 
           {stepIndex === 2 && (
+            <CarrierDistributionSelector selectedIds={carrierIds} onChange={setCarrierIds} />
+          )}
+
+          {stepIndex === 3 && (
             <div className="space-y-4 text-sm">
               <div className="rounded-md border border-border bg-muted/60 p-4">
                 <p className="label-uppercase mb-2">Submission Summary</p>
@@ -215,7 +229,16 @@ export default function NewDealPage() {
                   </dd>
                   <dt className="text-muted-foreground">Documents Attached</dt>
                   <dd className="text-right font-medium text-primary">{files.length}</dd>
+                  <dt className="text-muted-foreground">Carriers Selected</dt>
+                  <dd className="text-right font-medium text-primary">{carrierIds.length}</dd>
                 </dl>
+              </div>
+
+              <div className="rounded-md border border-accent-border bg-accent-tint p-4">
+                <p className="label-uppercase mb-2 text-accent">Presented To</p>
+                <p className="text-sm leading-relaxed text-primary">
+                  {resolveCarrierNames(carrierIds).join(" · ")}
+                </p>
               </div>
               {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
             </div>
@@ -228,7 +251,10 @@ export default function NewDealPage() {
           Back
         </Button>
         {stepIndex < STEPS.length - 1 ? (
-          <Button disabled={stepIndex === 0 && !canProceedFromStepOne} onClick={() => setStepIndex((s) => s + 1)}>
+          <Button
+            disabled={(stepIndex === 0 && !canProceedFromStepOne) || (stepIndex === 2 && carrierIds.length === 0)}
+            onClick={() => setStepIndex((s) => s + 1)}
+          >
             Continue
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>

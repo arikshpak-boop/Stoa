@@ -32,7 +32,7 @@ export function MarketingHeader() {
         <div className="container-page flex flex-wrap items-center justify-center gap-x-2 gap-y-1 py-2.5">
           <span className="font-semibold">W&amp;I cover, quoted in minutes.</span>
           <span className="text-white/85">Upload an SPA draft for indicative terms.</span>
-          <Link href="/signup?role=Broker" className="font-semibold underline underline-offset-2 hover:text-white">
+          <Link href="/contact" className="font-semibold underline underline-offset-2 hover:text-white">
             Start your first deal
           </Link>
         </div>
@@ -80,7 +80,7 @@ export function MarketingHeader() {
 
           <div className="flex items-center gap-4">
             <Button size="sm" asChild>
-              <Link href="/signup?role=Broker">Get Instant Terms</Link>
+              <Link href="/contact">Get Instant Terms</Link>
             </Button>
             <Link
               href="/login"
