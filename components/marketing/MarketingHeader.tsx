@@ -66,10 +66,10 @@ export function MarketingHeader() {
                 </div>
               ))}
               <Link
-                href="/signup?role=Carrier"
+                href="/signup"
                 className="rounded-full px-3 py-2 text-[15px] font-medium text-primary transition-colors hover:text-accent"
               >
-                Become a Carrier
+                Get Started
               </Link>
               <span className="ml-1 flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground" aria-hidden="true">
                 <Search className="h-4 w-4" />
