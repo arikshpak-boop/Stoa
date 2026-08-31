@@ -12,6 +12,7 @@ import {
   Upload,
   Vault,
 } from "lucide-react";
+import { EyebrowBadge } from "@/components/layout/EyebrowBadge";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
 import { SolutionsTabs } from "@/components/marketing/SolutionsTabs";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
@@ -102,6 +103,24 @@ const CAPABILITIES = [
   },
 ];
 
+const COMPOUNDING_ADVANTAGES = [
+  {
+    title: "Proprietary data moat",
+    description:
+      "Every placement trains Stoa's underwriting and pricing models. The risk engine sharpens with each deal and gets harder to replicate over time.",
+  },
+  {
+    title: "Two-sided network effects",
+    description:
+      "More carriers mean tighter, more competitive pricing; more quality deal flow attracts more carriers. The loop reinforces itself.",
+  },
+  {
+    title: "Auditable by design",
+    description:
+      "SHA-256 versioned snapshots plus SOC 2, GDPR, FCA and NYDFS readiness make Stoa trusted at institutional scale across US, UK and EU.",
+  },
+];
+
 const PROCESS_STEPS = [
   { step: "01", title: "Upload", description: "Drop SPA drafts, financial models, and disclosure schedules — or connect a live VDR." },
   { step: "02", title: "Extraction", description: "The async extraction engine parses documents and populates the deal metadata grid." },
@@ -145,22 +164,24 @@ export default function LandingPage() {
         <div className="container-page relative py-16 sm:py-24">
           <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-[1.15fr_0.85fr]">
             <div>
-              <h1 className="max-w-[15ch] text-display-md sm:text-display-lg">
-                Insurance, tailored for your transaction.
+              <EyebrowBadge dotColor="accent">Institutional Trust · Algorithmic Precision</EyebrowBadge>
+              <h1 className="mt-6 max-w-[14ch] text-display-md sm:text-display-lg">
+                The Future of M&amp;A Insurance
               </h1>
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-                Fast indicative terms. Comparable carrier bids. A cryptographically auditable record
-                of every deal.
+                Stoa replaces traditional Warranty &amp; Indemnity underwriting and legal validation
+                cycles with AI-powered due diligence, connecting dealmakers and carriers on a single,
+                cryptographically auditable marketplace.
               </p>
               <div className="mt-9 flex flex-wrap items-center gap-4">
                 <Button size="lg" asChild>
                   <Link href="/contact">
-                    Get Instant Terms
+                    Start Your First Deal
                     <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <Link href="/signup?role=Carrier">Join the carrier panel</Link>
+                  <Link href="/contact">Explore Marketplace</Link>
                 </Button>
               </div>
               <p className="mt-7 flex items-center gap-2 text-sm text-muted-foreground">
@@ -238,7 +259,7 @@ export default function LandingPage() {
       {/* CAPABILITIES */}
       <section id="why" className="section bg-white">
         <div className="container-page">
-          <p className="eyebrow">Why Stoa</p>
+          <p className="eyebrow">Why Choose Stoa</p>
           <h2 className="section-title max-w-3xl">Built for tier-1 underwriters and corporate legal teams</h2>
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {CAPABILITIES.map((capability) => (
@@ -246,6 +267,35 @@ export default function LandingPage() {
                 <capability.icon className="h-6 w-6 text-accent" aria-hidden="true" />
                 <h3 className="mt-5 font-sans text-lg font-semibold text-primary">{capability.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{capability.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* COMPOUNDING ADVANTAGE — top-rule accent cards from the original deck. */}
+      <section id="compounds" className="section bg-band-mist">
+        <div className="container-page">
+          <p className="eyebrow flex items-center gap-3">
+            <span className="h-px w-8 bg-accent" aria-hidden="true" />
+            Why Stoa Compounds
+          </p>
+          <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+            {COMPOUNDING_ADVANTAGES.map((advantage) => (
+              <div
+                key={advantage.title}
+                className="overflow-hidden rounded-lg bg-white shadow-card transition-shadow hover:shadow-lift"
+              >
+                <span className="block h-1 w-full bg-accent" aria-hidden="true" />
+                <div className="p-7">
+                  <h3 className="flex items-center gap-2.5 font-sans text-lg font-semibold text-primary">
+                    <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+                    {advantage.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                    {advantage.description}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
@@ -357,7 +407,7 @@ export default function LandingPage() {
       <section className="bg-primary">
         <div className="container-page py-16 text-center">
           <h2 className="text-display-sm text-white sm:text-display-md">
-            Ready to bring your next deal to market?
+            Ready to close faster?
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-white/70">
             Submit a transaction package and receive structured carrier bids on a fully auditable marketplace.
@@ -365,12 +415,12 @@ export default function LandingPage() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button size="lg" asChild>
               <Link href="/contact">
-                Get Instant Terms
+                Start Your First Deal
                 <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>
             <Button size="lg" variant="neutral" asChild>
-              <Link href="/contact">Talk to Our Team</Link>
+              <Link href="/contact">Explore Marketplace</Link>
             </Button>
           </div>
         </div>

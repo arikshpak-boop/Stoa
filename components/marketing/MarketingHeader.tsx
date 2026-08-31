@@ -30,9 +30,9 @@ export function MarketingHeader() {
       {/* Xometry-style announcement rail: one message, one link, always the same next step. */}
       <div className="bg-accent text-center text-sm text-white">
         <div className="container-page flex flex-wrap items-center justify-center gap-x-2 gap-y-1 py-3">
-          <span>Not sure what cover your transaction needs?</span>
+          <span>From data room to bound policy in under 7 days.</span>
           <Link href="/contact" className="font-semibold underline underline-offset-2 hover:text-white">
-            Find out in under 3 minutes
+            Start your first deal
           </Link>
         </div>
       </div>
