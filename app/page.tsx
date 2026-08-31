@@ -152,7 +152,7 @@ export default function LandingPage() {
 
           <div className="mx-auto mt-10 max-w-2xl rounded-lg border border-accent-border bg-accent-tint p-6 sm:p-8">
             <Button size="lg" className="w-full sm:w-auto" asChild>
-              <Link href="/signup?role=Broker">
+              <Link href="/contact">
                 <Upload className="mr-2 h-4 w-4" aria-hidden="true" />
                 Get Instant Terms
               </Link>
