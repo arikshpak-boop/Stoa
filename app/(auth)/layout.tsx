@@ -5,7 +5,7 @@ import { Logo } from "@/components/layout/Logo";
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-white">
-      <header className="flex h-[60px] shrink-0 items-center justify-between border-b border-border bg-white px-8">
+      <header className="flex h-[68px] shrink-0 items-center justify-between border-b border-border bg-white px-8">
         <Logo />
         <Link
           href="/"
@@ -15,7 +15,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           Back to Home
         </Link>
       </header>
-      <main className="bg-hero-wash flex flex-1 items-center justify-center px-4 py-12">{children}</main>
+      <main className="flex flex-1 items-center justify-center bg-band-mist px-4 py-14">{children}</main>
     </div>
   );
 }

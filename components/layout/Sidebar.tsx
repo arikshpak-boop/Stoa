@@ -36,10 +36,10 @@ export function Sidebar({ portal }: { portal: "broker" | "carrier" }) {
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "flex items-center gap-2.5 rounded-full px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               active
-                ? "bg-accent-tint text-accent shadow-[inset_3px_0_0_0_#0E6AED]"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                ? "bg-accent text-white"
+                : "text-muted-foreground hover:bg-muted hover:text-primary",
             )}
           >
             <Icon className="h-4 w-4" aria-hidden="true" />

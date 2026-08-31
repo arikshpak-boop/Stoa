@@ -10,7 +10,7 @@ export function EyebrowBadge({ children, dotColor = "success", className }: Eyeb
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 rounded-full border border-border bg-white px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground shadow-sm",
+        "inline-flex items-center gap-2 rounded-full border border-border bg-white px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground shadow-card",
         className,
       )}
     >

@@ -2,10 +2,7 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   darkMode: ["class"],
-  content: [
-    "./app/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-  ],
+  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
@@ -14,16 +11,16 @@ const config: Config = {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        // Near-black institutional ink. Used for headings and dark surfaces.
+        /** Warm near-black ink. Softer than slate, and the reason the page reads calm. */
         primary: {
-          DEFAULT: "#14171A",
+          DEFAULT: "#343332",
           foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#2B3138",
+          DEFAULT: "#4A4846",
           foreground: "#FFFFFF",
         },
-        // The single action colour: everything clickable and committal is this blue.
+        /** Royal blue: the one committal colour. */
         accent: {
           DEFAULT: "#0E6AED",
           foreground: "#FFFFFF",
@@ -33,50 +30,45 @@ const config: Config = {
           border: "#BAD6FB",
         },
         muted: {
-          DEFAULT: "#FAFAFA",
-          foreground: "#61646B",
+          DEFAULT: "#F5F5F5",
+          foreground: "#686764",
         },
-        subtle: "#8C8F96",
-        destructive: {
-          DEFAULT: "#CF1322",
-          foreground: "#FFFFFF",
-          tint: "#FFF1F0",
+        subtle: "#9B9A97",
+        /** Full-bleed section washes, all pulled off the royal-blue scale. */
+        band: {
+          mist: "#F6F8FC",
+          tint: "#E8F1FE",
+          sky: "#D7EAFF",
+          deep: "#BBDCFF",
         },
-        success: {
-          DEFAULT: "#389E0D",
-          foreground: "#FFFFFF",
-          tint: "#F6FFED",
-        },
-        warning: {
-          DEFAULT: "#D48806",
-          foreground: "#FFFFFF",
-          tint: "#FFFBE6",
-        },
-        card: {
-          DEFAULT: "#FFFFFF",
-          foreground: "#14171A",
-        },
-        popover: {
-          DEFAULT: "#FFFFFF",
-          foreground: "#14171A",
-        },
+        destructive: { DEFAULT: "#CF1322", foreground: "#FFFFFF", tint: "#FFF1F0" },
+        success: { DEFAULT: "#389E0D", foreground: "#FFFFFF", tint: "#F2FBEC" },
+        warning: { DEFAULT: "#B7791F", foreground: "#FFFFFF", tint: "#FFF8E6" },
+        card: { DEFAULT: "#FFFFFF", foreground: "#343332" },
+        popover: { DEFAULT: "#FFFFFF", foreground: "#343332" },
       },
       fontFamily: {
-        sans: ["var(--font-open-sans)", "Open Sans", "Segoe UI", "Arial", "sans-serif"],
+        sans: ["var(--font-inter)", "Inter", "Helvetica Neue", "Arial", "sans-serif"],
+        display: ["var(--font-display)", "Bricolage Grotesque", "Georgia", "serif"],
       },
       fontSize: {
-        display: ["3rem", { lineHeight: "1.21", fontWeight: "700" }],
-        "display-sm": ["2.25rem", { lineHeight: "1.25", fontWeight: "700" }],
+        // Display sizes run large and light — weight 500, never bold.
+        "display-xl": ["5rem", { lineHeight: "1.125", fontWeight: "500", letterSpacing: "-0.02em" }],
+        "display-lg": ["3.5rem", { lineHeight: "1.14", fontWeight: "500", letterSpacing: "-0.02em" }],
+        "display-md": ["2.5rem", { lineHeight: "1.2", fontWeight: "500", letterSpacing: "-0.015em" }],
+        "display-sm": ["2rem", { lineHeight: "1.2", fontWeight: "500", letterSpacing: "-0.0125em" }],
       },
       borderRadius: {
-        lg: "0.5rem",
-        md: "0.375rem",
-        sm: "0.25rem",
+        sm: "0.5rem",
+        md: "0.75rem",
+        lg: "0.9375rem", // 15px — the card radius
+        xl: "2rem",
+        blob: "3.75rem", // 60px — oversized feature panels
       },
       boxShadow: {
-        card: "0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06)",
-        lift: "0 6px 16px rgba(0, 0, 0, 0.08), 0 3px 6px rgba(0, 0, 0, 0.04)",
-        control: "0 1px 2px rgba(0, 0, 0, 0.05)",
+        card: "0 1px 3px rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1)",
+        lift: "0 8px 24px rgba(52,51,50,0.15)",
+        control: "0 1px 2px rgba(52,51,50,0.06)",
       },
       keyframes: {
         "accordion-down": { from: { height: "0" }, to: { height: "var(--radix-accordion-content-height)" } },

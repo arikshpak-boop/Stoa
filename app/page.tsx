@@ -140,80 +140,76 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white">
       <MarketingHeader />
 
-      {/* HERO — Xometry puts the single primary action inside a tinted panel, front and centre. */}
-      <section className="bg-hero-wash">
-        <div className="container-page py-16 text-center sm:py-24">
-          <h1 className="mx-auto max-w-4xl text-[36px] font-bold leading-[1.15] tracking-tight text-primary sm:text-display">
-            Quote M&amp;A Insurance in Minutes
-          </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-            Upload your deal documents, get indicative terms from the carrier panel, and bind online.
-          </p>
+      {/* HERO — oversized light display type, organic blob, pill actions. */}
+      <section className="relative overflow-hidden">
+        <div className="container-page relative py-16 sm:py-24">
+          <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-[1.15fr_0.85fr]">
+            <div>
+              <h1 className="max-w-[15ch] text-display-md sm:text-display-lg">
+                Insurance, tailored for your transaction.
+              </h1>
+              <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
+                Fast indicative terms. Comparable carrier bids. A cryptographically auditable record
+                of every deal.
+              </p>
+              <div className="mt-9 flex flex-wrap items-center gap-4">
+                <Button size="lg" asChild>
+                  <Link href="/contact">
+                    Get Instant Terms
+                    <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" asChild>
+                  <Link href="/signup?role=Carrier">Join the carrier panel</Link>
+                </Button>
+              </div>
+              <p className="mt-7 flex items-center gap-2 text-sm text-muted-foreground">
+                <Lock className="h-4 w-4" aria-hidden="true" />
+                Uploads are encrypted, confidential, and isolated to your organisation.
+              </p>
+            </div>
 
-          <div className="mx-auto mt-10 max-w-2xl rounded-lg border border-accent-border bg-accent-tint p-6 sm:p-8">
-            <Button size="lg" className="w-full sm:w-auto" asChild>
-              <Link href="/contact">
-                <Upload className="mr-2 h-4 w-4" aria-hidden="true" />
-                Get Instant Terms
-              </Link>
-            </Button>
-            <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-              {ACCEPTED_FILES}
-            </p>
-            <p className="mt-4 flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
-              <Lock className="h-3.5 w-3.5" aria-hidden="true" />
-              All uploads are encrypted, confidential, and isolated to your organisation.
-            </p>
-          </div>
-
-          <div className="mt-6">
-            <Link
-              href="/signup?role=Carrier"
-              className="text-sm font-semibold text-accent underline-offset-4 hover:underline"
-            >
-              Underwriting W&amp;I? Join the carrier panel →
-            </Link>
-          </div>
-        </div>
-
-        {/* TRUST RAIL */}
-        <div id="trust" className="border-t border-border/70">
-          <div className="container-page py-8">
-            <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-              {CREDENTIALS.map((credential) => (
-                <li
-                  key={credential}
-                  className="text-xs font-bold uppercase tracking-[0.1em] text-muted-foreground"
-                >
-                  {credential}
-                </li>
-              ))}
-            </ul>
-            <p className="mx-auto mt-5 max-w-3xl text-center text-xs leading-relaxed text-subtle">
-              Stoa operates a technology marketplace and is not the risk carrier. Cover is written by the licensed
-              insurers on the panel. Stoa values your privacy and the confidentiality of your transaction data.
-            </p>
+            {/* Blob-backed stat cluster stands in for Embroker's cut-out photography. */}
+            <div className="relative mx-auto w-full max-w-md lg:mx-0">
+              <div className="blob absolute -right-8 -top-10 h-72 w-72 bg-band-sky" aria-hidden="true" />
+              <div className="blob-alt absolute -bottom-12 -left-10 h-56 w-56 bg-band-tint" aria-hidden="true" />
+              <div className="surface-panel relative">
+                <p className="eyebrow">Live on the panel</p>
+                <dl className="mt-6 space-y-6">
+                  {STATS.map((stat) => (
+                    <div key={stat.label} className="flex items-baseline justify-between gap-4 border-b border-border pb-5 last:border-0 last:pb-0">
+                      <dt className="text-sm text-muted-foreground">{stat.label}</dt>
+                      <dd className="font-display text-3xl font-medium tracking-tight text-primary">{stat.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* STATS STRIP */}
-      <section className="border-y border-border bg-white">
-        <div className="container-page grid grid-cols-2 divide-border py-10 sm:grid-cols-4 sm:divide-x">
-          {STATS.map((stat) => (
-            <div key={stat.label} className="px-4 py-4 text-center">
-              <span className="block text-[32px] font-bold leading-none tracking-tight text-primary">{stat.value}</span>
-              <span className="mt-2 block text-sm text-muted-foreground">{stat.label}</span>
-            </div>
-          ))}
+      {/* TRUST BAND */}
+      <section id="trust" className="bg-band-mist">
+        <div className="container-page py-12">
+          <p className="text-center text-sm text-muted-foreground">
+            Trusted infrastructure for institutional transactions
+          </p>
+          <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
+            {CREDENTIALS.map((credential) => (
+              <li key={credential} className="text-xs font-semibold uppercase tracking-[0.12em] text-subtle">
+                {credential}
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
       {/* SOLUTIONS — tabbed, the way Xometry splits Services / Use Cases. */}
-      <section id="solutions" className="section">
+      <section id="solutions" className="section bg-white">
         <div className="container-page">
           <p className="eyebrow">Solutions</p>
-          <h2 className="section-title max-w-2xl">
+          <h2 className="section-title max-w-3xl">
             One submission. Every structure your transaction needs.
           </h2>
           <div className="mt-10">
@@ -223,15 +219,15 @@ export default function LandingPage() {
       </section>
 
       {/* VALUE PROPS */}
-      <section className="section section-alt border-y border-border">
+      <section className="section bg-band-tint">
         <div className="container-page">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {VALUE_PROPS.map((prop) => (
-              <div key={prop.title} className="surface-card p-6">
-                <span className="flex h-10 w-10 items-center justify-center rounded-md bg-accent-tint text-accent">
+              <div key={prop.title} className="rounded-lg bg-white p-7 shadow-card transition-shadow hover:shadow-lift">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-tint text-accent">
                   <prop.icon className="h-5 w-5" aria-hidden="true" />
                 </span>
-                <h3 className="mt-4 text-base font-bold text-primary">{prop.title}</h3>
+                <h3 className="mt-5 font-sans text-lg font-semibold text-primary">{prop.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{prop.description}</p>
               </div>
             ))}
@@ -240,15 +236,15 @@ export default function LandingPage() {
       </section>
 
       {/* CAPABILITIES */}
-      <section id="why" className="section">
+      <section id="why" className="section bg-white">
         <div className="container-page">
           <p className="eyebrow">Why Stoa</p>
-          <h2 className="section-title max-w-2xl">Built for tier-1 underwriters and corporate legal teams</h2>
+          <h2 className="section-title max-w-3xl">Built for tier-1 underwriters and corporate legal teams</h2>
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {CAPABILITIES.map((capability) => (
-              <div key={capability.title} className="surface-card p-6">
+              <div key={capability.title} className="rounded-lg border border-border bg-white p-7 transition-shadow hover:shadow-lift">
                 <capability.icon className="h-6 w-6 text-accent" aria-hidden="true" />
-                <h3 className="mt-4 text-base font-bold text-primary">{capability.title}</h3>
+                <h3 className="mt-5 font-sans text-lg font-semibold text-primary">{capability.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{capability.description}</p>
               </div>
             ))}
@@ -257,15 +253,15 @@ export default function LandingPage() {
       </section>
 
       {/* PROCESS */}
-      <section id="process" className="section section-alt border-y border-border">
+      <section id="process" className="section bg-band-sky">
         <div className="container-page">
           <p className="eyebrow">How It Works</p>
-          <h2 className="section-title max-w-2xl">From data room to bound policy in under seven days</h2>
+          <h2 className="section-title max-w-3xl">From data room to bound policy in under seven days</h2>
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {PROCESS_STEPS.map((step) => (
-              <div key={step.step} className="surface-card p-6">
-                <span className="text-[28px] font-bold leading-none tracking-tight text-accent">{step.step}</span>
-                <h3 className="mt-3 text-base font-bold text-primary">{step.title}</h3>
+              <div key={step.step} className="rounded-lg bg-white p-7 shadow-card">
+                <span className="font-display text-4xl font-medium leading-none tracking-tight text-accent">{step.step}</span>
+                <h3 className="mt-4 font-sans text-lg font-semibold text-primary">{step.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.description}</p>
               </div>
             ))}
@@ -274,15 +270,15 @@ export default function LandingPage() {
       </section>
 
       {/* PROOF — Xometry's "Real Stories, Real Impact" rail. */}
-      <section id="proof" className="section">
+      <section id="proof" className="section bg-white">
         <div className="container-page">
           <p className="eyebrow">Real Deals, Real Outcomes</p>
-          <h2 className="section-title max-w-2xl">What placement looks like when the file never moves</h2>
+          <h2 className="section-title max-w-3xl">What placement looks like when the file never moves</h2>
           <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
             {CASE_STUDIES.map((study) => (
-              <article key={study.title} className="surface-card flex flex-col p-6">
+              <article key={study.title} className="flex flex-col rounded-lg border border-border bg-white p-7 transition-shadow hover:shadow-lift">
                 <span className="text-xs font-bold uppercase tracking-[0.12em] text-accent">{study.tag}</span>
-                <h3 className="mt-3 text-lg font-bold leading-snug text-primary">{study.title}</h3>
+                <h3 className="mt-4 font-sans text-lg font-semibold leading-snug text-primary">{study.title}</h3>
                 <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">{study.detail}</p>
                 <span className="mt-5 inline-flex items-center text-sm font-semibold text-accent">
                   Read the story
@@ -295,14 +291,14 @@ export default function LandingPage() {
       </section>
 
       {/* TESTIMONIAL MARQUEE */}
-      <section className="section-alt border-y border-border py-12">
+      <section className="bg-band-mist py-14">
         <div className="mask-fade-x overflow-hidden">
           <ul className="flex w-max animate-marquee gap-4 px-4">
             {[...TESTIMONIALS, ...TESTIMONIALS].map((testimonial, index) => (
               <li
                 key={`${testimonial.name}-${index}`}
                 aria-hidden={index >= TESTIMONIALS.length}
-                className="w-[340px] shrink-0 rounded-lg border border-border bg-white p-6 shadow-card"
+                className="w-[360px] shrink-0 rounded-lg bg-white p-7 shadow-card"
               >
                 <Quote className="h-4 w-4 text-accent" aria-hidden="true" />
                 <p className="mt-3 text-sm leading-relaxed text-foreground">“{testimonial.quote}”</p>
@@ -316,14 +312,14 @@ export default function LandingPage() {
       </section>
 
       {/* DUAL AUDIENCE */}
-      <section id="platform" className="section">
+      <section id="platform" className="section bg-white">
         <div className="container-page">
           <p className="eyebrow">Two Sides, One Record</p>
-          <h2 className="section-title max-w-2xl">Life of a deal</h2>
+          <h2 className="section-title max-w-3xl">Life of a deal</h2>
           <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="rounded-lg border border-border bg-primary p-8 text-white">
+            <div className="rounded-xl bg-primary p-9 text-white">
               <ShieldCheck className="h-6 w-6 text-white" aria-hidden="true" />
-              <h3 className="mt-4 text-xl font-bold text-white">For Deal Makers</h3>
+              <h3 className="mt-5 font-display text-2xl font-medium text-white">For Deal Makers</h3>
               <p className="mt-3 text-sm leading-relaxed text-white/70">
                 PE firms and M&amp;A advisors submit a deal once, in under fifteen minutes, and receive structured,
                 comparable bids from vetted carriers — without a single re-keyed field.
@@ -337,9 +333,9 @@ export default function LandingPage() {
                 </Button>
               </div>
             </div>
-            <div className="surface-card p-8">
+            <div className="rounded-xl border border-border bg-white p-9">
               <Gauge className="h-6 w-6 text-accent" aria-hidden="true" />
-              <h3 className="mt-4 text-xl font-bold text-primary">For Insurance Carriers</h3>
+              <h3 className="mt-5 font-display text-2xl font-medium text-primary">For Insurance Carriers</h3>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                 Underwriters review the un-mutated deal package alongside the automated Stoa Risk &amp; Exclusions
                 Report, then configure limit, retention, and rate on line in one workspace.
@@ -358,12 +354,12 @@ export default function LandingPage() {
       </section>
 
       {/* CLOSING CTA */}
-      <section className="border-t border-border bg-accent-tint">
+      <section className="bg-primary">
         <div className="container-page py-16 text-center">
-          <h2 className="text-[28px] font-bold tracking-tight text-primary sm:text-[32px]">
+          <h2 className="text-display-sm text-white sm:text-display-md">
             Ready to bring your next deal to market?
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-white/70">
             Submit a transaction package and receive structured carrier bids on a fully auditable marketplace.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -373,7 +369,7 @@ export default function LandingPage() {
                 <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" asChild>
+            <Button size="lg" variant="neutral" asChild>
               <Link href="/contact">Talk to Our Team</Link>
             </Button>
           </div>

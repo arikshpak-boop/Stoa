@@ -42,12 +42,12 @@ const COLUMNS = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border bg-primary text-white">
+    <footer className="bg-primary text-white">
       <div className="container-page py-14">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-[1.2fr_repeat(4,1fr)]">
           <div>
             <Logo dark={false} />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/60">
+            <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/60">
               Institutional-grade infrastructure for M&amp;A warranty &amp; indemnity insurance — one verified
               submission, comparable carrier bids, a cryptographically auditable record.
             </p>

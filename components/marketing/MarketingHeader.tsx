@@ -28,18 +28,17 @@ export function MarketingHeader() {
   return (
     <>
       {/* Xometry-style announcement rail: one message, one link, always the same next step. */}
-      <div className="bg-accent text-center text-[13px] text-white">
-        <div className="container-page flex flex-wrap items-center justify-center gap-x-2 gap-y-1 py-2.5">
-          <span className="font-semibold">W&amp;I cover, quoted in minutes.</span>
-          <span className="text-white/85">Upload an SPA draft for indicative terms.</span>
+      <div className="bg-accent text-center text-sm text-white">
+        <div className="container-page flex flex-wrap items-center justify-center gap-x-2 gap-y-1 py-3">
+          <span>Not sure what cover your transaction needs?</span>
           <Link href="/contact" className="font-semibold underline underline-offset-2 hover:text-white">
-            Start your first deal
+            Find out in under 3 minutes
           </Link>
         </div>
       </div>
 
       <header className="sticky top-0 z-40 border-b border-border bg-white">
-        <div className="container-page flex h-[60px] items-center justify-between gap-6">
+        <div className="container-page flex h-[76px] items-center justify-between gap-6">
           <div className="flex items-center gap-8">
             <Logo />
             <nav className="hidden items-center gap-1 lg:flex">
@@ -47,7 +46,7 @@ export function MarketingHeader() {
                 <div key={menu.label} className="group relative">
                   <button
                     type="button"
-                    className="flex items-center gap-1 rounded-md px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:text-accent"
+                    className="flex items-center gap-1 rounded-full px-3 py-2 text-[15px] font-medium text-primary transition-colors hover:text-accent"
                   >
                     {menu.label}
                     <ChevronDown className="h-3.5 w-3.5 transition-transform group-hover:rotate-180" aria-hidden="true" />
@@ -57,7 +56,7 @@ export function MarketingHeader() {
                       <Link
                         key={item.label}
                         href={item.href}
-                        className="block rounded-md px-3 py-2.5 transition-colors hover:bg-accent-tint"
+                        className="block rounded-md px-3 py-3 transition-colors hover:bg-accent-tint"
                       >
                         <span className="block text-sm font-semibold text-primary">{item.label}</span>
                         <span className="mt-0.5 block text-xs text-muted-foreground">{item.hint}</span>
@@ -68,7 +67,7 @@ export function MarketingHeader() {
               ))}
               <Link
                 href="/signup?role=Carrier"
-                className="rounded-md px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:text-accent"
+                className="rounded-full px-3 py-2 text-[15px] font-medium text-primary transition-colors hover:text-accent"
               >
                 Become a Carrier
               </Link>
@@ -79,15 +78,12 @@ export function MarketingHeader() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Button size="sm" asChild>
+            <Button variant="outline" className="hidden sm:inline-flex" asChild>
+              <Link href="/login">Sign In</Link>
+            </Button>
+            <Button asChild>
               <Link href="/contact">Get Instant Terms</Link>
             </Button>
-            <Link
-              href="/login"
-              className="hidden text-sm font-semibold text-muted-foreground transition-colors hover:text-accent sm:block"
-            >
-              Log In / Register
-            </Link>
           </div>
         </div>
       </header>

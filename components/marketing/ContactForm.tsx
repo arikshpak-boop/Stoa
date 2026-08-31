@@ -79,9 +79,9 @@ export function ContactForm() {
 
   if (isSent) {
     return (
-      <div className="rounded-lg border border-success/25 bg-success-tint p-8 text-center">
+      <div className="rounded-xl border border-success/25 bg-success-tint p-9 text-center">
         <CheckCircle2 className="mx-auto h-8 w-8 text-success" aria-hidden="true" />
-        <h2 className="mt-4 text-xl font-bold text-primary">
+        <h2 className="mt-5 font-display text-2xl font-medium text-primary">
           {sentVia === "server" ? "Thanks — your message is on its way" : "Your email is ready to send"}
         </h2>
         <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
@@ -103,7 +103,7 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="surface-card p-6 sm:p-8" noValidate>
+    <form onSubmit={handleSubmit} className="rounded-xl border border-border bg-white p-7 shadow-card sm:p-9" noValidate>
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div>
           <Label htmlFor="contact-name">Full name</Label>
@@ -161,10 +161,10 @@ export function ContactForm() {
               onClick={() => setEnquiryType(type)}
               aria-pressed={enquiryType === type}
               className={cn(
-                "rounded-md border px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                "rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 enquiryType === type
-                  ? "border-accent bg-accent-tint text-accent"
-                  : "border-border bg-white text-muted-foreground hover:border-accent/50 hover:text-foreground",
+                  ? "border-accent bg-accent text-white"
+                  : "border-border bg-white text-muted-foreground hover:border-accent/50 hover:text-primary",
               )}
             >
               {type}

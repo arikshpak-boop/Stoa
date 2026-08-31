@@ -78,7 +78,7 @@ export function SolutionsTabs() {
 
   return (
     <div>
-      <div role="tablist" aria-label="Stoa solutions" className="flex flex-wrap gap-2 border-b border-border">
+      <div role="tablist" aria-label="Stoa solutions" className="flex flex-wrap gap-2">
         {SOLUTIONS.map((solution) => {
           const isActive = solution.key === activeKey;
           return (
@@ -91,10 +91,10 @@ export function SolutionsTabs() {
               aria-controls={`solution-panel-${solution.key}`}
               onClick={() => setActiveKey(solution.key)}
               className={cn(
-                "-mb-px border-b-2 px-4 py-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                "rounded-full px-5 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 isActive
-                  ? "border-accent text-accent"
-                  : "border-transparent text-muted-foreground hover:text-foreground",
+                  ? "bg-accent text-white"
+                  : "bg-muted text-muted-foreground hover:bg-accent-tint hover:text-accent",
               )}
             >
               {solution.tab}
@@ -110,7 +110,7 @@ export function SolutionsTabs() {
         className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center"
       >
         <div>
-          <h3 className="text-2xl font-bold leading-snug text-primary sm:text-[28px]">{active.headline}</h3>
+          <h3 className="text-display-sm">{active.headline}</h3>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">{active.blurb}</p>
           <ul className="mt-6 space-y-3">
             {active.bullets.map((bullet) => (
@@ -133,10 +133,10 @@ export function SolutionsTabs() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-accent-border bg-accent-tint p-8">
-          <span className="block text-[44px] font-bold leading-none tracking-tight text-accent">{active.stat.value}</span>
+        <div className="rounded-xl bg-band-tint p-9">
+          <span className="block font-display text-5xl font-medium leading-none tracking-tight text-accent">{active.stat.value}</span>
           <span className="mt-3 block text-sm font-semibold text-primary">{active.stat.label}</span>
-          <p className="mt-6 border-t border-accent-border pt-6 text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-7 border-t border-accent/20 pt-6 text-sm leading-relaxed text-muted-foreground">
             Measured across transactions submitted through the Stoa marketplace. Figures are illustrative of the
             platform model and are not a quotation or an offer of cover.
           </p>

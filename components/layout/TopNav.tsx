@@ -21,13 +21,13 @@ export function TopNav({
   primaryAction,
 }: TopNavProps) {
   return (
-    <header className="flex h-[60px] shrink-0 items-center justify-between border-b border-border bg-white px-6">
+    <header className="flex h-[68px] shrink-0 items-center justify-between border-b border-border bg-white px-6">
       <div className="flex items-center gap-4">
         <Logo />
         <span className="h-5 w-px bg-border" aria-hidden="true" />
         <BackButton />
         <span className="h-5 w-px bg-border" aria-hidden="true" />
-        <span className="text-sm font-semibold text-muted-foreground">{portalLabel}</span>
+        <span className="text-sm font-medium text-muted-foreground">{portalLabel}</span>
       </div>
       <div className="flex items-center gap-4">
         {showRoleSwitch && (
@@ -45,7 +45,7 @@ export function TopNav({
           </Button>
         )}
         <span
-          className="rounded border border-accent-border bg-accent-tint px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-accent"
+          className="rounded-full border border-accent-border bg-accent-tint px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-accent"
           title={userEmail}
         >
           {organizationName}

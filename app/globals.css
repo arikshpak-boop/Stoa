@@ -4,11 +4,10 @@
 
 @layer base {
   :root {
-    /* Xometry-style neutral canvas: white surfaces on a near-white ground. */
     --background: 0 0% 100%;
-    --foreground: 210 11% 9%;
-    --border: 220 13% 91%;
-    --input: 0 0% 85%;
+    --foreground: 30 2% 20%;   /* #343332 */
+    --border: 0 0% 90%;
+    --input: 0 0% 87%;
     --ring: 216 89% 49%;
   }
 
@@ -20,8 +19,13 @@
     @apply bg-white text-foreground antialiased;
   }
 
-  h1, h2, h3, h4 {
-    @apply font-bold tracking-tight text-primary;
+  /* Headings are display-face and LIGHT (500). Bold headings break the look. */
+  h1, h2, h3 {
+    @apply font-display font-medium tracking-tight text-primary;
+  }
+
+  h4, h5, h6 {
+    @apply font-sans font-semibold text-primary;
   }
 
   .label-uppercase {
@@ -30,60 +34,55 @@
 }
 
 @layer components {
-  /* Section rhythm: Xometry alternates full-bleed white and #FAFAFA bands. */
+  /* Generous vertical rhythm — Embroker breathes at 80px+ per band. */
   .section {
-    @apply py-16 sm:py-20;
-  }
-
-  .section-alt {
-    @apply bg-muted;
+    @apply py-16 sm:py-20 lg:py-24;
   }
 
   .container-page {
-    @apply mx-auto w-full max-w-[1200px] px-6;
+    @apply mx-auto w-full max-w-[1200px] px-6 sm:px-8;
   }
 
   .eyebrow {
-    @apply text-xs font-bold uppercase tracking-[0.14em] text-accent;
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-accent;
   }
 
   .section-title {
-    @apply mt-3 text-[28px] font-bold leading-tight tracking-tight text-primary sm:text-[32px];
+    @apply mt-4 text-display-sm sm:text-display-md;
   }
 
   .section-lede {
-    @apply mt-3 text-base leading-relaxed text-muted-foreground;
+    @apply mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg;
   }
 
-  /* The recurring Xometry surface: white card, hairline border, lifts on hover. */
   .surface-card {
-    @apply rounded-lg border border-border bg-white shadow-card transition-shadow duration-150 hover:shadow-lift;
+    @apply rounded-lg border border-border bg-white shadow-card transition-shadow duration-200 hover:shadow-lift;
+  }
+
+  /* Oversized soft panel — the recurring Embroker feature block. */
+  .surface-panel {
+    @apply rounded-xl bg-white p-8 shadow-lift sm:p-10;
   }
 }
 
 @layer utilities {
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: #d9d9d9;
-    border-radius: 999px;
-  }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background-color: #d9d9d9; border-radius: 999px; }
 
-  .bg-dot-grid {
-    background-image: radial-gradient(circle, rgba(20, 23, 26, 0.07) 1px, transparent 1px);
-    background-size: 22px 22px;
+  /* Organic blob behind hero imagery and stat clusters. */
+  .blob {
+    border-radius: 42% 58% 37% 63% / 55% 44% 56% 45%;
   }
-
-  /* Blue wash behind the hero, mirroring Xometry's tinted quoting panel. */
-  .bg-hero-wash {
-    background:
-      radial-gradient(1100px 420px at 50% -10%, #E8F1FE 0%, rgba(232, 241, 254, 0) 70%),
-      linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+  .blob-alt {
+    border-radius: 63% 37% 55% 45% / 38% 60% 40% 62%;
   }
 
   .mask-fade-x {
     mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  }
+
+  .bg-dot-grid {
+    background-image: radial-gradient(circle, rgba(52, 51, 50, 0.07) 1px, transparent 1px);
+    background-size: 22px 22px;
   }
 }

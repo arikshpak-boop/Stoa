@@ -3,31 +3,33 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
+/**
+ * Pill buttons throughout — fully rounded, 14px semibold label, 48px tall at
+ * the default size. This is the loudest signal of the design language, so
+ * nothing here should reintroduce a square corner.
+ */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-full text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-accent text-accent-foreground shadow-control hover:bg-accent-hover active:bg-accent-active",
-        primary: "bg-primary text-primary-foreground shadow-control hover:bg-secondary",
-        outline: "border border-accent-border bg-white text-accent shadow-control hover:border-accent hover:bg-accent-tint",
-        neutral: "border border-border bg-white text-foreground shadow-control hover:bg-muted",
-        ghost: "text-foreground hover:bg-muted",
+        default: "bg-accent text-accent-foreground hover:bg-accent-hover active:bg-accent-active",
+        primary: "bg-primary text-primary-foreground hover:bg-secondary",
+        outline: "border border-accent bg-white text-accent hover:bg-accent-tint",
+        neutral: "border border-border bg-white text-primary hover:bg-muted",
+        ghost: "text-primary hover:bg-muted",
         link: "text-accent underline-offset-4 hover:underline",
-        destructive: "bg-destructive text-destructive-foreground shadow-control hover:bg-destructive/90",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/90",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-12 rounded-md px-7 text-base",
-        icon: "h-10 w-10",
+        default: "h-12 px-6",
+        sm: "h-9 px-4 text-[13px]",
+        lg: "h-14 px-8 text-base",
+        icon: "h-12 w-12",
       },
     },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
+    defaultVariants: { variant: "default", size: "default" },
   },
 );
 

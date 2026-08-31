@@ -34,11 +34,11 @@ export default function ContactPage() {
     <div className="min-h-screen bg-white">
       <MarketingHeader />
 
-      <section className="bg-hero-wash">
+      <section className="bg-band-mist">
         <div className="container-page py-14 text-center sm:py-20">
           <p className="eyebrow">Contact Us</p>
-          <h1 className="mx-auto mt-3 max-w-3xl text-[32px] font-bold leading-[1.15] tracking-tight text-primary sm:text-[44px]">
-            Let's talk about your transaction
+          <h1 className="mx-auto mt-4 max-w-3xl text-display-sm sm:text-display-md lg:text-display-lg">
+            Let&apos;s talk about your transaction
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
             Tell us about the deal and we'll come back with indicative terms and the carriers best
@@ -63,11 +63,11 @@ export default function ContactPage() {
           <div className="space-y-6">
             {ASSURANCES.map((assurance) => (
               <div key={assurance.title} className="flex gap-4">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-accent-tint text-accent">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent-tint text-accent">
                   <assurance.icon className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <div>
-                  <h2 className="text-base font-bold text-primary">{assurance.title}</h2>
+                  <h2 className="font-sans text-base font-semibold text-primary">{assurance.title}</h2>
                   <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
                     {assurance.description}
                   </p>
@@ -75,8 +75,8 @@ export default function ContactPage() {
               </div>
             ))}
 
-            <div className="rounded-lg border border-accent-border bg-accent-tint p-6">
-              <h2 className="text-sm font-bold text-primary">Already underwriting W&amp;I?</h2>
+            <div className="rounded-lg bg-band-tint p-7">
+              <h2 className="font-sans text-sm font-semibold text-primary">Already underwriting W&amp;I?</h2>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 Carriers and MGAs join the panel through the same form — pick{" "}
                 <span className="font-semibold text-primary">Carrier</span> and tell us your appetite.
