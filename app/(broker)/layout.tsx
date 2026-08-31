@@ -28,6 +28,7 @@ export default function BrokerLayout({ children }: { children: React.ReactNode }
         organizationName={session.organizationName}
         userEmail={session.email}
         showRoleSwitch={session.role === "Admin"}
+        primaryAction={{ href: "/deals/new", label: "New Submission" }}
       />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar portal="broker" />

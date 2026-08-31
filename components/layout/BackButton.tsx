@@ -12,7 +12,7 @@ export function BackButton() {
   return (
     <Link
       href={backHref}
-      className="flex items-center gap-1.5 rounded-sm text-sm font-medium text-white/80 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+      className="flex items-center gap-1.5 rounded-md text-sm font-semibold text-muted-foreground transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       aria-label="Go back"
     >
       <ArrowLeft className="h-4 w-4" aria-hidden="true" />

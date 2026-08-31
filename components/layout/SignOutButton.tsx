@@ -9,7 +9,7 @@ interface SignOutButtonProps {
   variant?: "dark" | "light";
 }
 
-export function SignOutButton({ variant = "dark" }: SignOutButtonProps) {
+export function SignOutButton({ variant = "light" }: SignOutButtonProps) {
   const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
